@@ -16,7 +16,7 @@ __all__ = ["EmbeddingConfig", "Memory", "MemoryConfig", "Scope", "__version__"]
 _current_module = sys.modules[__name__]
 _public_names = set(__all__)
 for _name in list(vars(_current_module).keys()):
-    if _name.startswith("_") or _name in _public_names or _name == "__version__":
+    if _name.startswith("_") or _name in _public_names:
         continue
-    if isinstance(vars(_current_module)[_name], ModuleType):
+    if isinstance(vars(_current_module).get(_name), ModuleType):
         delattr(_current_module, _name)

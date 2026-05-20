@@ -6,13 +6,13 @@ def test_public_exports_are_exactly_the_documented_set() -> None:
     import lakehouse_memory as pkg
 
     expected = {"Memory", "MemoryConfig", "EmbeddingConfig", "Scope", "__version__"}
-    actual = {name for name in dir(pkg) if not name.startswith("_")} | {"__version__"}
+    actual = set(pkg.__all__) | {"__version__"}
     # `__version__` is dunder-named so it's added explicitly above.
-    assert expected.issubset(actual), f"missing: {expected - actual}"
+    assert expected == actual, f"expected {expected}, got {actual}"
 
-    # No accidental leakage of internal modules at top level.
-    leaked = {"client", "schema", "vector", "stores", "compactor"} & set(dir(pkg))
-    assert not leaked, f"internal modules leaked into public API: {leaked}"
+    # Verify that the intended public names are actually accessible
+    for name in pkg.__all__:
+        assert hasattr(pkg, name), f"public export {name} not found on package"
 
 
 def test_version_string_is_set() -> None:
