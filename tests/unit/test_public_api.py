@@ -1,4 +1,5 @@
 """Lock the public API so accidental exports are caught."""
+
 from __future__ import annotations
 
 

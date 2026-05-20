@@ -3,6 +3,7 @@
 Wires the three stores against a shared client, vector index, and scope.
 Provides idempotent UC table provisioning and ergonomic scope refinement.
 """
+
 from __future__ import annotations
 
 from lakehouse_memory.client import DatabricksClient

@@ -1,4 +1,5 @@
 """Tests for SemanticStore."""
+
 from __future__ import annotations
 
 from unittest.mock import MagicMock
@@ -56,10 +57,12 @@ def test_upsert_deduplicates_on_fact_within_scope() -> None:
 
 def test_retrieve_uses_vector_index_with_scope_filter() -> None:
     idx = MockVectorIndex()
-    idx.upsert([
-        {"id": "1", "text": "user prefers SQL", "user_id": "u_1"},
-        {"id": "2", "text": "other user prefers Python", "user_id": "u_2"},
-    ])
+    idx.upsert(
+        [
+            {"id": "1", "text": "user prefers SQL", "user_id": "u_1"},
+            {"id": "2", "text": "other user prefers Python", "user_id": "u_2"},
+        ]
+    )
     store = SemanticStore(
         client=_client_returning([]),
         index=idx,

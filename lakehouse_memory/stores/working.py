@@ -3,6 +3,7 @@
 No vector index. Overwrite semantics. `clear()` requires a non-empty scope
 to prevent accidental whole-table deletes.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -22,19 +23,23 @@ class WorkingStore:
         params: dict[str, Any] = {"key": key, "value": value, **scope_params}
         scope_cols = sorted(scope_params)
 
-        source_aliases = ", ".join([
-            ":key AS key",
-            ":value AS value",
-            *[f":{c} AS {c}" for c in scope_cols],
-        ])
+        source_aliases = ", ".join(
+            [
+                ":key AS key",
+                ":value AS value",
+                *[f":{c} AS {c}" for c in scope_cols],
+            ]
+        )
         match_conds = " AND ".join(["t.key = s.key", *[f"t.{c} = s.{c}" for c in scope_cols]])
         insert_cols = ", ".join(["key", "value", "updated_at", *scope_cols])
-        insert_vals = ", ".join([
-            "s.key",
-            "s.value",
-            "CURRENT_TIMESTAMP()",
-            *[f"s.{c}" for c in scope_cols],
-        ])
+        insert_vals = ", ".join(
+            [
+                "s.key",
+                "s.value",
+                "CURRENT_TIMESTAMP()",
+                *[f"s.{c}" for c in scope_cols],
+            ]
+        )
 
         sql = (
             f"MERGE INTO {self._fqn} t "

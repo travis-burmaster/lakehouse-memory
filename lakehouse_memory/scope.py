@@ -3,6 +3,7 @@
 `Scope` is the only place where scope filter SQL and metadata filters are
 constructed. Every store applies these filters automatically to every read.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, fields, replace
@@ -48,4 +49,6 @@ class Scope:
         return replace(self, **updates)
 
     def _set_fields(self) -> dict[str, str]:
-        return {f.name: getattr(self, f.name) for f in fields(self) if getattr(self, f.name) is not None}
+        return {
+            f.name: getattr(self, f.name) for f in fields(self) if getattr(self, f.name) is not None
+        }

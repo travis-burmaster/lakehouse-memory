@@ -1,4 +1,5 @@
 """Semantic memory: durable, upsertable, vector-searched facts."""
+
 from __future__ import annotations
 
 import hashlib
@@ -41,29 +42,34 @@ class SemanticStore:
         }
         scope_cols = sorted(scope_params)
 
-        source_aliases = ", ".join([
-            ":fact_id AS fact_id",
-            ":fact AS fact",
-            ":source AS source",
-            ":text AS text",
-            *[f":{c} AS {c}" for c in scope_cols],
-        ])
+        source_aliases = ", ".join(
+            [
+                ":fact_id AS fact_id",
+                ":fact AS fact",
+                ":source AS source",
+                ":text AS text",
+                *[f":{c} AS {c}" for c in scope_cols],
+            ]
+        )
         insert_cols = ", ".join(["fact_id", "fact", "source", "text", "updated_at", *scope_cols])
-        insert_vals = ", ".join([
-            "s.fact_id",
-            "s.fact",
-            "s.source",
-            "s.text",
-            "CURRENT_TIMESTAMP()",
-            *[f"s.{c}" for c in scope_cols],
-        ])
+        insert_vals = ", ".join(
+            [
+                "s.fact_id",
+                "s.fact",
+                "s.source",
+                "s.text",
+                "CURRENT_TIMESTAMP()",
+                *[f"s.{c}" for c in scope_cols],
+            ]
+        )
 
         sql = (
             f"MERGE INTO {self._fqn} t "
             f"USING (SELECT {source_aliases}) s "
             f"ON t.fact_id = s.fact_id "
             f"WHEN MATCHED THEN UPDATE SET "
-            f"t.fact = s.fact, t.source = s.source, t.text = s.text, t.updated_at = CURRENT_TIMESTAMP() "
+            f"t.fact = s.fact, t.source = s.source, t.text = s.text, "
+            f"t.updated_at = CURRENT_TIMESTAMP() "
             f"WHEN NOT MATCHED THEN INSERT ({insert_cols}) VALUES ({insert_vals})"
         )
         self._client.execute(sql, params)

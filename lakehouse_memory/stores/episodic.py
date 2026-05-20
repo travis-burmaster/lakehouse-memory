@@ -1,4 +1,5 @@
 """Episodic memory: append-only time-ordered events."""
+
 from __future__ import annotations
 
 import json
@@ -39,15 +40,19 @@ class EpisodicStore:
             **scope_params,
         }
         scope_cols = sorted(scope_params)
-        col_list = ", ".join(["event_id", "event_type", "payload", "text", "created_at", *scope_cols])
-        val_list = ", ".join([
-            ":event_id",
-            ":event_type",
-            ":payload",
-            ":text",
-            "CURRENT_TIMESTAMP()",
-            *[f":{c}" for c in scope_cols],
-        ])
+        col_list = ", ".join(
+            ["event_id", "event_type", "payload", "text", "created_at", *scope_cols]
+        )
+        val_list = ", ".join(
+            [
+                ":event_id",
+                ":event_type",
+                ":payload",
+                ":text",
+                "CURRENT_TIMESTAMP()",
+                *[f":{c}" for c in scope_cols],
+            ]
+        )
         self._client.execute(
             f"INSERT INTO {self._fqn} ({col_list}) VALUES ({val_list})",
             params,

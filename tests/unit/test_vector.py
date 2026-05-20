@@ -1,4 +1,5 @@
 """Tests for VectorIndex protocol and MockVectorIndex."""
+
 from __future__ import annotations
 
 from lakehouse_memory.vector import MockVectorIndex
@@ -6,20 +7,24 @@ from lakehouse_memory.vector import MockVectorIndex
 
 def test_mock_index_upsert_then_search_returns_matching_records() -> None:
     idx = MockVectorIndex()
-    idx.upsert([
-        {"id": "1", "text": "blue car", "user_id": "u_1"},
-        {"id": "2", "text": "red bike", "user_id": "u_2"},
-    ])
+    idx.upsert(
+        [
+            {"id": "1", "text": "blue car", "user_id": "u_1"},
+            {"id": "2", "text": "red bike", "user_id": "u_2"},
+        ]
+    )
     results = idx.search(query="blue", k=5)
     assert any(r["id"] == "1" for r in results)
 
 
 def test_mock_index_search_applies_metadata_filter() -> None:
     idx = MockVectorIndex()
-    idx.upsert([
-        {"id": "1", "text": "blue car", "user_id": "u_1"},
-        {"id": "2", "text": "blue plane", "user_id": "u_2"},
-    ])
+    idx.upsert(
+        [
+            {"id": "1", "text": "blue car", "user_id": "u_1"},
+            {"id": "2", "text": "blue plane", "user_id": "u_2"},
+        ]
+    )
     results = idx.search(query="blue", k=5, filter={"user_id": "u_1"})
     assert [r["id"] for r in results] == ["1"]
 

@@ -4,6 +4,7 @@
 `SqlConnectorClient` is the production implementation backed by
 `databricks-sql-connector`. Tests use mocks that satisfy the Protocol.
 """
+
 from __future__ import annotations
 
 from typing import Any, Protocol
@@ -14,11 +15,9 @@ from databricks import sql
 class DatabricksClient(Protocol):
     """Minimal SQL-execution surface the library needs."""
 
-    def execute(self, sql: str, params: dict[str, Any] | None = None) -> list[dict[str, Any]]:
-        ...
+    def execute(self, sql: str, params: dict[str, Any] | None = None) -> list[dict[str, Any]]: ...
 
-    def execute_many(self, sql: str, rows: list[dict[str, Any]]) -> None:
-        ...
+    def execute_many(self, sql: str, rows: list[dict[str, Any]]) -> None: ...
 
 
 class SqlConnectorClient:

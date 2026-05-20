@@ -1,4 +1,5 @@
 """lakehouse-memory: Unity Catalog-native memory for AI agents on Databricks."""
+
 from __future__ import annotations
 
 import sys

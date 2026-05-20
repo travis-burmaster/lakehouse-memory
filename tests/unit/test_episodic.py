@@ -1,4 +1,5 @@
 """Tests for EpisodicStore."""
+
 from __future__ import annotations
 
 import json
@@ -94,10 +95,12 @@ def test_recent_with_event_type_filter() -> None:
 
 def test_search_queries_vector_index_with_scope_filter() -> None:
     idx = MockVectorIndex()
-    idx.upsert([
-        {"id": "1", "text": "user struggled with billing", "user_id": "u_1"},
-        {"id": "2", "text": "other user struggled", "user_id": "u_2"},
-    ])
+    idx.upsert(
+        [
+            {"id": "1", "text": "user struggled with billing", "user_id": "u_1"},
+            {"id": "2", "text": "other user struggled", "user_id": "u_2"},
+        ]
+    )
     store = EpisodicStore(
         client=_client_returning([]),
         index=idx,

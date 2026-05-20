@@ -1,4 +1,5 @@
 """Tests for Scope filter construction."""
+
 from __future__ import annotations
 
 import dataclasses

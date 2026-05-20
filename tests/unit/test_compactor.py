@@ -1,4 +1,5 @@
 """Tests for the Compactor protocol stub."""
+
 from __future__ import annotations
 
 from lakehouse_memory.compactor import Compactor, NullCompactor

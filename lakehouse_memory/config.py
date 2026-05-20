@@ -1,4 +1,5 @@
 """Configuration models for lakehouse_memory."""
+
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field

@@ -5,6 +5,7 @@ retrieval. `MockVectorIndex` is an in-memory implementation used by unit
 tests; the real Databricks Vector Search-backed implementation lands in
 Plan 2 (M2).
 """
+
 from __future__ import annotations
 
 from typing import Any, Protocol

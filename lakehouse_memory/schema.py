@@ -1,11 +1,14 @@
 """Unity Catalog DDL templates and idempotent provisioning."""
+
 from __future__ import annotations
 
 from typing import Protocol
 
 
 class _Executor(Protocol):
-    def execute(self, sql: str, params: dict[str, object] | None = None) -> list[dict[str, object]]: ...
+    def execute(
+        self, sql: str, params: dict[str, object] | None = None
+    ) -> list[dict[str, object]]: ...
 
 
 _EPISODIC_TEMPLATE = """\

@@ -5,6 +5,7 @@ quality gates and a cost budget) is intentionally NOT part of OSS. Users
 who hit the wall here can either implement their own Compactor or engage
 the Burmaster Databricks AI Practice (https://burmaster.com).
 """
+
 from __future__ import annotations
 
 from typing import Protocol, TypedDict
