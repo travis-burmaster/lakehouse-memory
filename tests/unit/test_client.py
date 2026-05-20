@@ -22,6 +22,8 @@ def test_sql_connector_client_execute_returns_rows_as_dicts() -> None:
     fake_cursor.fetchall.return_value = [("v_1", 1), ("v_2", 2)]
     fake_cursor.description = [("name",), ("count",)]
     fake_conn = MagicMock()
+    fake_conn.__enter__.return_value = fake_conn
+    fake_conn.__exit__.return_value = False
     fake_conn.cursor.return_value.__enter__.return_value = fake_cursor
 
     with patch("lakehouse_memory.client.sql.connect", return_value=fake_conn):
@@ -41,6 +43,8 @@ def test_sql_connector_client_passes_named_params() -> None:
     fake_cursor.fetchall.return_value = []
     fake_cursor.description = []
     fake_conn = MagicMock()
+    fake_conn.__enter__.return_value = fake_conn
+    fake_conn.__exit__.return_value = False
     fake_conn.cursor.return_value.__enter__.return_value = fake_cursor
 
     with patch("lakehouse_memory.client.sql.connect", return_value=fake_conn):
@@ -57,6 +61,8 @@ def test_sql_connector_client_passes_named_params() -> None:
 def test_sql_connector_client_execute_many_dispatches_rows() -> None:
     fake_cursor = MagicMock()
     fake_conn = MagicMock()
+    fake_conn.__enter__.return_value = fake_conn
+    fake_conn.__exit__.return_value = False
     fake_conn.cursor.return_value.__enter__.return_value = fake_cursor
 
     with patch("lakehouse_memory.client.sql.connect", return_value=fake_conn):

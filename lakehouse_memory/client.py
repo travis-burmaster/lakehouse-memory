@@ -36,15 +36,15 @@ class SqlConnectorClient:
         )
 
     def execute(self, sql: str, params: dict[str, Any] | None = None) -> list[dict[str, Any]]:
-        conn = self._connect()
-        with conn.cursor() as cur:
-            cur.execute(sql, params or {})
-            if not cur.description:
-                return []
-            columns = [d[0] for d in cur.description]
-            return [dict(zip(columns, row, strict=True)) for row in cur.fetchall()]
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, params or {})
+                if not cur.description:
+                    return []
+                columns = [d[0] for d in cur.description]
+                return [dict(zip(columns, row, strict=True)) for row in cur.fetchall()]
 
     def execute_many(self, sql: str, rows: list[dict[str, Any]]) -> None:
-        conn = self._connect()
-        with conn.cursor() as cur:
-            cur.executemany(sql, rows)
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.executemany(sql, rows)
