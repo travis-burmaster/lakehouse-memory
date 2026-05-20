@@ -70,7 +70,7 @@ def test_retrieve_uses_vector_index_with_scope_filter() -> None:
         scope=Scope(user_id="u_1"),
     )
 
-    results = store.retrieve("preference", k=5)
+    results = store.retrieve("prefers", k=5)
     assert [r["id"] for r in results] == ["1"]
 
 
