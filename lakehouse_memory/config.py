@@ -20,7 +20,7 @@ class MemoryConfig(BaseModel):
     model_config = ConfigDict(frozen=True, protected_namespaces=())
 
     catalog: str = Field(min_length=1)
-    schema: str = Field(min_length=1)
+    schema: str = Field(min_length=1)  # type: ignore[assignment]
     embedding: EmbeddingConfig = Field(default_factory=EmbeddingConfig)
 
     def fqn(self, table: str) -> str:
