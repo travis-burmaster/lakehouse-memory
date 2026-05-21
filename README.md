@@ -1,8 +1,12 @@
 # lakehouse-memory
 
+[![PyPI](https://img.shields.io/pypi/v/lakehouse-memory.svg?label=pypi&include_prereleases)](https://pypi.org/project/lakehouse-memory/)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/travis-burmaster/lakehouse-memory/actions/workflows/ci.yml/badge.svg)](https://github.com/travis-burmaster/lakehouse-memory/actions/workflows/ci.yml)
+
 Unity Catalog-native episodic, semantic, and working memory for AI agents on Databricks.
 
-> **Status:** Alpha. Public from day one. v0.1.0 is the first releasable cut. See [the spec](https://github.com/travis-burmaster/lakehouse-memory) for design intent.
+> **Status:** Pre-release (`0.1.0b1`). Public from day one. The core library and LangChain adapters are workspace-validated; the DAB starter (M3) and docs site (M4) are not yet shipped. See [the spec](https://github.com/travis-burmaster/lakehouse-memory) for design intent.
 
 ## The pitch
 
@@ -13,8 +17,10 @@ Memory is the missing Databricks layer. The standard workaround is a sidecar vec
 ## Install
 
 ```bash
-pip install lakehouse-memory
+pip install --pre lakehouse-memory
 ```
+
+The `--pre` flag is required while the package is in pre-release. Once `0.1.0` ships (alongside the M3 DAB starter and M4 docs), `pip install lakehouse-memory` will work without the flag.
 
 ## Quickstart
 
