@@ -1,0 +1,206 @@
+"""Real VectorIndex backed by Databricks Vector Search Delta Sync indexes.
+
+`DatabricksVectorIndex` implements the `VectorIndex` protocol with `upsert`
+and `delete` as no-ops (Delta Sync auto-syncs the source Delta table to the
+managed index). `search` queries the index via the Vector Search SDK.
+
+`ensure_indexes` is an idempotent factory that provisions the Vector Search
+endpoint and the two Delta Sync indexes (episodic, semantic). Working
+memory has no index.
+
+Reads are eventually consistent: sync delay is typically seconds to minutes.
+"""
+
+from __future__ import annotations
+
+import json
+import time
+from typing import Any
+
+from databricks.vector_search.client import VectorSearchClient
+
+from lakehouse_memory.config import MemoryConfig
+
+_ENDPOINT_POLL_INTERVAL_S = 10
+_ENDPOINT_POLL_TIMEOUT_S = 600  # 10 min — endpoint cold start can be ~5 min
+_INDEX_POLL_INTERVAL_S = 5
+_INDEX_POLL_TIMEOUT_S = 300  # 5 min — first sync for a fresh index
+
+
+class DatabricksVectorIndex:
+    """`VectorIndex` Protocol implementation backed by a Delta Sync index."""
+
+    def __init__(
+        self,
+        endpoint_name: str,
+        index_name: str,
+        embedding_column: str = "text",
+        workspace_url: str | None = None,
+        access_token: str | None = None,
+    ) -> None:
+        self._endpoint_name = endpoint_name
+        self._index_name = index_name
+        self._embedding_column = embedding_column
+        self._workspace_url = workspace_url
+        self._access_token = access_token
+
+    def upsert(self, records: list[dict[str, Any]]) -> None:
+        # No-op: Delta Sync handles index population from the Delta source.
+        return None
+
+    def search(
+        self,
+        query: str,
+        k: int,
+        filter: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
+        client = VectorSearchClient(
+            workspace_url=self._workspace_url,
+            personal_access_token=self._access_token,
+        )
+        index = client.get_index(
+            endpoint_name=self._endpoint_name,
+            index_name=self._index_name,
+        )
+        kwargs: dict[str, Any] = {
+            "query_text": query,
+            "num_results": k,
+        }
+        if filter:
+            kwargs["filters_json"] = json.dumps(filter)
+        response = index.similarity_search(**kwargs)
+        return _unpack_search_response(response)
+
+    def delete(self, ids: list[str]) -> None:
+        # No-op: deletes propagate via Delta source.
+        return None
+
+
+def _unpack_search_response(response: dict[str, Any]) -> list[dict[str, Any]]:
+    """Translate the Vector Search SDK response into a list of plain dicts.
+
+    Response shape (per Databricks Vector Search REST API):
+        {
+            "result": {"row_count": N, "data_array": [[...], ...]},
+            "manifest": {"columns": [{"name": "id"}, {"name": "text"}, ...]},
+        }
+    """
+    result = response.get("result", {})
+    manifest = response.get("manifest", {})
+    columns = [c.get("name", "") for c in manifest.get("columns", [])]
+    rows = result.get("data_array", [])
+    return [dict(zip(columns, row, strict=False)) for row in rows]
+
+
+def ensure_indexes(
+    workspace_url: str,
+    access_token: str,
+    endpoint_name: str,
+    config: MemoryConfig,
+) -> dict[str, DatabricksVectorIndex]:
+    """Idempotently ensure the Vector Search endpoint and Delta Sync indexes exist.
+
+    Returns {"episodic": ..., "semantic": ...}. WorkingStore has no index.
+
+    Steps:
+        1. If endpoint doesn't exist, create it and poll until ONLINE.
+        2. For each of (episodic, semantic), try to create the Delta Sync
+           index; if it already exists, swallow and proceed.
+        3. Poll each index until READY.
+    """
+    client = VectorSearchClient(
+        workspace_url=workspace_url,
+        personal_access_token=access_token,
+    )
+
+    _ensure_endpoint(client, endpoint_name)
+
+    indexes: dict[str, DatabricksVectorIndex] = {}
+    for table in ("episodic", "semantic"):
+        index_name = f"{config.catalog}.{config.schema_name}.{table}_idx"
+        source_table = config.fqn(table)
+        _try_create_delta_sync_index(
+            client=client,
+            endpoint_name=endpoint_name,
+            index_name=index_name,
+            source_table=source_table,
+            embedding_endpoint=config.embedding.endpoint_name,
+        )
+        _wait_for_index_ready(client, endpoint_name, index_name)
+        indexes[table] = DatabricksVectorIndex(
+            endpoint_name=endpoint_name,
+            index_name=index_name,
+            workspace_url=workspace_url,
+            access_token=access_token,
+        )
+    return indexes
+
+
+def _ensure_endpoint(client: Any, endpoint_name: str) -> None:
+    existing = client.list_endpoints().get("endpoints", [])
+    by_name = {e.get("name"): e for e in existing}
+    if endpoint_name not in by_name:
+        client.create_endpoint(name=endpoint_name, endpoint_type="STANDARD")
+    else:
+        # If already listed and ONLINE, no need to poll.
+        existing_state = by_name[endpoint_name].get("endpoint_status", {}).get("state")
+        if existing_state == "ONLINE":
+            return
+
+    deadline = time.time() + _ENDPOINT_POLL_TIMEOUT_S
+    while time.time() < deadline:
+        info = client.get_endpoint(name=endpoint_name)
+        state = info.get("endpoint_status", {}).get("state")
+        if state == "ONLINE":
+            return
+        time.sleep(_ENDPOINT_POLL_INTERVAL_S)
+    raise TimeoutError(
+        f"Vector Search endpoint {endpoint_name!r} did not become ONLINE within "
+        f"{_ENDPOINT_POLL_TIMEOUT_S}s"
+    )
+
+
+def _try_create_delta_sync_index(
+    client: Any,
+    endpoint_name: str,
+    index_name: str,
+    source_table: str,
+    embedding_endpoint: str,
+) -> None:
+    try:
+        client.create_delta_sync_index(
+            endpoint_name=endpoint_name,
+            index_name=index_name,
+            source_table_name=source_table,
+            pipeline_type="TRIGGERED",
+            primary_key=_primary_key_for(source_table),
+            embedding_source_column="text",
+            embedding_model_endpoint_name=embedding_endpoint,
+        )
+    except Exception as e:
+        message = str(e).upper()
+        if "ALREADY_EXISTS" in message or "RESOURCE_ALREADY_EXISTS" in message:
+            return
+        raise
+
+
+def _primary_key_for(source_table: str) -> str:
+    """Pick the primary key column based on the table type embedded in the FQN."""
+    table = source_table.rsplit(".", 1)[-1]
+    if table == "episodic":
+        return "event_id"
+    if table == "semantic":
+        return "fact_id"
+    raise ValueError(f"No primary key configured for source table {source_table!r}")
+
+
+def _wait_for_index_ready(client: Any, endpoint_name: str, index_name: str) -> None:
+    deadline = time.time() + _INDEX_POLL_TIMEOUT_S
+    while time.time() < deadline:
+        info = client.get_index(endpoint_name=endpoint_name, index_name=index_name)
+        if info.get("status", {}).get("ready"):
+            return
+        time.sleep(_INDEX_POLL_INTERVAL_S)
+    raise TimeoutError(
+        f"Vector Search index {index_name!r} did not become READY within {_INDEX_POLL_TIMEOUT_S}s"
+    )
