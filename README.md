@@ -18,7 +18,54 @@ pip install lakehouse-memory
 
 ## Quickstart
 
-(Coming in M3 — see the DAB starter.)
+```python
+from lakehouse_memory import Memory, MemoryConfig, Scope
+from lakehouse_memory.client import SqlConnectorClient
+from lakehouse_memory.vector_databricks import DatabricksVectorIndex
+import os
+
+config = MemoryConfig(catalog="main", schema_name="agent_memory")
+
+client = SqlConnectorClient(
+    server_hostname=os.environ["DATABRICKS_HOST"].replace("https://", ""),
+    http_path=os.environ["DATABRICKS_HTTP_PATH"],
+    access_token=os.environ["DATABRICKS_TOKEN"],
+)
+
+index = DatabricksVectorIndex(
+    endpoint_name=os.environ["DATABRICKS_VECTOR_SEARCH_ENDPOINT"],
+    index_name=f"{config.catalog}.{config.schema_name}.episodic_idx",
+    workspace_url=os.environ["DATABRICKS_HOST"],
+    access_token=os.environ["DATABRICKS_TOKEN"],
+    columns=["event_id", "text", "user_id", "session_id", "agent_id"],
+)
+
+mem = Memory(config=config, client=client, index=index, scope=Scope(user_id="u_1"))
+mem.provision(
+    vector_search_endpoint=os.environ["DATABRICKS_VECTOR_SEARCH_ENDPOINT"],
+    workspace_url=os.environ["DATABRICKS_HOST"],
+    access_token=os.environ["DATABRICKS_TOKEN"],
+)
+
+# Write a fact
+mem.semantic.upsert(fact="User prefers SQL over Python.")
+
+# Delta Sync indexes are TRIGGERED — explicitly fire the sync after writes.
+# (For production, consider switching to CONTINUOUS pipelines.)
+mem.semantic._index.trigger_sync()
+
+# Wait for sync; production code would use exponential backoff
+import time; time.sleep(15)
+
+facts = mem.semantic.retrieve("language preferences", k=3)
+```
+
+**LangChain integration:**
+
+```python
+chat = mem.as_langchain_chat_history(limit=50)
+retriever = mem.as_langchain_retriever(k=5)
+```
 
 ## Production gaps
 
