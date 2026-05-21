@@ -59,13 +59,39 @@ class Memory:
     def scope(self) -> Scope:
         return self._scope
 
-    def provision(self) -> None:
-        """Idempotently create the three memory tables."""
+    def provision(
+        self,
+        *,
+        vector_search_endpoint: str | None = None,
+        workspace_url: str | None = None,
+        access_token: str | None = None,
+    ) -> None:
+        """Idempotently create the three memory tables and, optionally, the Vector Search indexes.
+
+        When `vector_search_endpoint` is None (default), only the UC tables are
+        provisioned — preserving the M1 behavior.
+
+        When `vector_search_endpoint` is set, also ensures the Vector Search
+        endpoint exists and creates Delta Sync indexes for the episodic and
+        semantic tables. Requires `workspace_url` and `access_token`.
+        """
         SchemaProvisioner(
             client=self._client,
             catalog=self._config.catalog,
             schema=self._config.schema_name,
         ).apply()
+
+        if vector_search_endpoint is not None:
+            if not workspace_url or not access_token:
+                raise ValueError("vector_search_endpoint requires workspace_url and access_token")
+            from lakehouse_memory.vector_databricks import ensure_indexes
+
+            ensure_indexes(
+                workspace_url=workspace_url,
+                access_token=access_token,
+                endpoint_name=vector_search_endpoint,
+                config=self._config,
+            )
 
     def with_scope(
         self,
