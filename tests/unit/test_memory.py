@@ -12,7 +12,7 @@ from lakehouse_memory.vector import MockVectorIndex
 
 def test_memory_exposes_three_stores() -> None:
     mem = Memory(
-        config=MemoryConfig(catalog="prod", schema="mem"),
+        config=MemoryConfig(catalog="prod", schema_name="mem"),
         client=MagicMock(),
         index=MockVectorIndex(),
         scope=Scope(user_id="u_1"),
@@ -24,7 +24,7 @@ def test_memory_exposes_three_stores() -> None:
 
 def test_memory_stores_use_correct_fqns() -> None:
     mem = Memory(
-        config=MemoryConfig(catalog="prod", schema="mem"),
+        config=MemoryConfig(catalog="prod", schema_name="mem"),
         client=MagicMock(),
         index=MockVectorIndex(),
         scope=Scope(user_id="u_1"),
@@ -37,7 +37,7 @@ def test_memory_stores_use_correct_fqns() -> None:
 def test_memory_provision_applies_schema() -> None:
     client = MagicMock()
     mem = Memory(
-        config=MemoryConfig(catalog="prod", schema="mem"),
+        config=MemoryConfig(catalog="prod", schema_name="mem"),
         client=client,
         index=MockVectorIndex(),
         scope=Scope(),
@@ -53,7 +53,7 @@ def test_memory_provision_applies_schema() -> None:
 
 def test_memory_with_scope_returns_new_memory_with_merged_scope() -> None:
     mem = Memory(
-        config=MemoryConfig(catalog="prod", schema="mem"),
+        config=MemoryConfig(catalog="prod", schema_name="mem"),
         client=MagicMock(),
         index=MockVectorIndex(),
         scope=Scope(user_id="u_1"),

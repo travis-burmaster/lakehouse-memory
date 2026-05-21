@@ -20,27 +20,27 @@ def test_embedding_config_accepts_override() -> None:
     assert cfg.dimensions == 768
 
 
-def test_memory_config_requires_catalog_and_schema() -> None:
+def test_memory_config_requires_catalog_and_schema_name() -> None:
     with pytest.raises(ValidationError):
         MemoryConfig()  # type: ignore[call-arg]
 
 
 def test_memory_config_rejects_empty_strings() -> None:
     with pytest.raises(ValidationError):
-        MemoryConfig(catalog="", schema="my_schema")
+        MemoryConfig(catalog="", schema_name="my_schema")
     with pytest.raises(ValidationError):
-        MemoryConfig(catalog="my_catalog", schema="")
+        MemoryConfig(catalog="my_catalog", schema_name="")
 
 
 def test_memory_config_defaults_embedding() -> None:
-    cfg = MemoryConfig(catalog="prod", schema="mem")
+    cfg = MemoryConfig(catalog="prod", schema_name="mem")
     assert cfg.embedding.endpoint_name == "databricks-gte-large-en"
 
 
 def test_memory_config_accepts_custom_embedding() -> None:
     cfg = MemoryConfig(
         catalog="prod",
-        schema="mem",
+        schema_name="mem",
         embedding=EmbeddingConfig(endpoint_name="my-endpoint", dimensions=512),
     )
     assert cfg.embedding.endpoint_name == "my-endpoint"
@@ -48,5 +48,5 @@ def test_memory_config_accepts_custom_embedding() -> None:
 
 
 def test_memory_config_fqn_helper() -> None:
-    cfg = MemoryConfig(catalog="prod", schema="mem")
+    cfg = MemoryConfig(catalog="prod", schema_name="mem")
     assert cfg.fqn("episodic") == "prod.mem.episodic"

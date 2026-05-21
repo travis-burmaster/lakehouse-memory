@@ -56,7 +56,7 @@ class Memory:
         SchemaProvisioner(
             client=self._client,
             catalog=self._config.catalog,
-            schema=self._config.schema,
+            schema=self._config.schema_name,
         ).apply()
 
     def with_scope(

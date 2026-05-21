@@ -17,12 +17,12 @@ class EmbeddingConfig(BaseModel):
 class MemoryConfig(BaseModel):
     """Top-level configuration for a Memory instance."""
 
-    model_config = ConfigDict(frozen=True, protected_namespaces=())
+    model_config = ConfigDict(frozen=True)
 
     catalog: str = Field(min_length=1)
-    schema: str = Field(min_length=1)  # type: ignore[assignment]
+    schema_name: str = Field(min_length=1)
     embedding: EmbeddingConfig = Field(default_factory=EmbeddingConfig)
 
     def fqn(self, table: str) -> str:
         """Return the fully-qualified Unity Catalog name for a table."""
-        return f"{self.catalog}.{self.schema}.{table}"
+        return f"{self.catalog}.{self.schema_name}.{table}"
