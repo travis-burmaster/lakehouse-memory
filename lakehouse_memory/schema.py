@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS {catalog}.{schema}.episodic (
     session_id STRING,
     agent_id STRING,
     created_at TIMESTAMP NOT NULL
-) USING DELTA"""
+) USING DELTA
+TBLPROPERTIES ('delta.enableChangeDataFeed' = 'true')"""
 
 _SEMANTIC_TEMPLATE = """\
 CREATE TABLE IF NOT EXISTS {catalog}.{schema}.semantic (
@@ -33,7 +34,8 @@ CREATE TABLE IF NOT EXISTS {catalog}.{schema}.semantic (
     session_id STRING,
     agent_id STRING,
     updated_at TIMESTAMP NOT NULL
-) USING DELTA"""
+) USING DELTA
+TBLPROPERTIES ('delta.enableChangeDataFeed' = 'true')"""
 
 _WORKING_TEMPLATE = """\
 CREATE TABLE IF NOT EXISTS {catalog}.{schema}.working (
@@ -67,6 +69,9 @@ class SchemaProvisioner:
         self._schema = schema
 
     def apply(self) -> None:
+        self._client.execute(
+            f"CREATE SCHEMA IF NOT EXISTS {self._catalog}.{self._schema}"
+        )
         self._client.execute(episodic_ddl(self._catalog, self._schema))
         self._client.execute(semantic_ddl(self._catalog, self._schema))
         self._client.execute(working_ddl(self._catalog, self._schema))

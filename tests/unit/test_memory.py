@@ -46,8 +46,9 @@ def test_memory_provision_applies_schema() -> None:
     )
     mem.provision()
 
-    assert client.execute.call_count == 3
+    assert client.execute.call_count == 4
     statements = [c.args[0] for c in client.execute.call_args_list]
+    assert any("CREATE SCHEMA IF NOT EXISTS" in s and "prod.mem" in s for s in statements)
     assert any("prod.mem.episodic" in s for s in statements)
     assert any("prod.mem.semantic" in s for s in statements)
     assert any("prod.mem.working" in s for s in statements)
@@ -75,8 +76,8 @@ def test_memory_provision_without_endpoint_runs_only_schema() -> None:
         scope=Scope(),
     )
     mem.provision()  # no vector_search_endpoint
-    # Three DDL statements were issued (M1 behavior preserved)
-    assert client.execute.call_count == 3
+    # Four DDL statements were issued: CREATE SCHEMA + three table DDLs
+    assert client.execute.call_count == 4
 
 
 def test_memory_provision_with_endpoint_calls_ensure_indexes() -> None:
@@ -98,8 +99,8 @@ def test_memory_provision_with_endpoint_calls_ensure_indexes() -> None:
             access_token="dapi-test",
         )
 
-    # Schema still applied
-    assert client.execute.call_count == 3
+    # Schema still applied (CREATE SCHEMA + three table DDLs)
+    assert client.execute.call_count == 4
     # ensure_indexes called with the right args
     mock_ensure.assert_called_once()
     call_kwargs = mock_ensure.call_args.kwargs

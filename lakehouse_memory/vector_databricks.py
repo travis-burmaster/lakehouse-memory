@@ -24,7 +24,7 @@ from lakehouse_memory.config import MemoryConfig
 _ENDPOINT_POLL_INTERVAL_S = 10
 _ENDPOINT_POLL_TIMEOUT_S = 600  # 10 min — endpoint cold start can be ~5 min
 _INDEX_POLL_INTERVAL_S = 5
-_INDEX_POLL_TIMEOUT_S = 300  # 5 min — first sync for a fresh index
+_INDEX_POLL_TIMEOUT_S = 1200  # 20 min — first sync for a fresh index (can be slow on cold endpoints)
 
 
 class DatabricksVectorIndex:
@@ -166,22 +166,43 @@ def _try_create_delta_sync_index(
     index_name: str,
     source_table: str,
     embedding_endpoint: str,
+    retries: int = 3,
+    retry_delay_s: float = 15.0,
 ) -> None:
-    try:
-        client.create_delta_sync_index(
-            endpoint_name=endpoint_name,
-            index_name=index_name,
-            source_table_name=source_table,
-            pipeline_type="TRIGGERED",
-            primary_key=_primary_key_for(source_table),
-            embedding_source_column="text",
-            embedding_model_endpoint_name=embedding_endpoint,
-        )
-    except Exception as e:
-        message = str(e).upper()
-        if "ALREADY_EXISTS" in message or "RESOURCE_ALREADY_EXISTS" in message:
+    """Create a Delta Sync index, retrying transient server errors.
+
+    Swallows "already exists" errors (idempotency). Retries server-side
+    failures (e.g. transient Model Serving endpoint errors) up to `retries`
+    times with a fixed delay.
+    """
+    last_exc: Exception | None = None
+    for attempt in range(1 + retries):
+        try:
+            client.create_delta_sync_index(
+                endpoint_name=endpoint_name,
+                index_name=index_name,
+                source_table_name=source_table,
+                pipeline_type="TRIGGERED",
+                primary_key=_primary_key_for(source_table),
+                embedding_source_column="text",
+                embedding_model_endpoint_name=embedding_endpoint,
+            )
             return
-        raise
+        except Exception as e:
+            message = str(e).upper()
+            # Handle both "ALREADY_EXISTS" error codes and natural-language messages
+            # like "UC entity ... already exists."
+            if (
+                "ALREADY_EXISTS" in message
+                or "RESOURCE_ALREADY_EXISTS" in message
+                or "ALREADY EXISTS" in message
+            ):
+                return
+            last_exc = e
+            if attempt < retries:
+                time.sleep(retry_delay_s)
+    assert last_exc is not None
+    raise last_exc
 
 
 def _primary_key_for(source_table: str) -> str:
@@ -195,10 +216,21 @@ def _primary_key_for(source_table: str) -> str:
 
 
 def _wait_for_index_ready(client: Any, endpoint_name: str, index_name: str) -> None:
+    """Poll until the index status.ready is True.
+
+    The SDK's `get_index` returns a VectorSearchIndex object; use `.describe()`
+    to get the status dict (shape: {"status": {"ready": bool, ...}, ...}).
+    """
     deadline = time.time() + _INDEX_POLL_TIMEOUT_S
     while time.time() < deadline:
-        info = client.get_index(endpoint_name=endpoint_name, index_name=index_name)
-        if info.get("status", {}).get("ready"):
+        index_obj = client.get_index(endpoint_name=endpoint_name, index_name=index_name)
+        # index_obj is a VectorSearchIndex; .describe() returns a plain dict.
+        info = index_obj.describe() if hasattr(index_obj, "describe") else index_obj
+        if isinstance(info, dict):
+            ready = info.get("status", {}).get("ready")
+        else:
+            ready = getattr(getattr(info, "status", None), "ready", None)
+        if ready:
             return
         time.sleep(_INDEX_POLL_INTERVAL_S)
     raise TimeoutError(

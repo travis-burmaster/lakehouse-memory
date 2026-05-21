@@ -47,21 +47,27 @@ def test_working_ddl_includes_fqn_and_required_columns() -> None:
     assert "updated_at TIMESTAMP" in sql
 
 
-def test_provisioner_apply_executes_three_ddls_in_order() -> None:
+def test_provisioner_apply_executes_four_ddls_in_order() -> None:
     client = MagicMock()
     provisioner = SchemaProvisioner(client=client, catalog="prod", schema="mem")
     provisioner.apply()
 
-    assert client.execute.call_count == 3
+    assert client.execute.call_count == 4
     statements = [call.args[0] for call in client.execute.call_args_list]
-    assert "prod.mem.episodic" in statements[0]
-    assert "prod.mem.semantic" in statements[1]
-    assert "prod.mem.working" in statements[2]
+    assert "CREATE SCHEMA IF NOT EXISTS" in statements[0]
+    assert "prod.mem" in statements[0]
+    assert "prod.mem.episodic" in statements[1]
+    assert "prod.mem.semantic" in statements[2]
+    assert "prod.mem.working" in statements[3]
 
 
 def test_provisioner_apply_is_idempotent_via_if_not_exists() -> None:
     client = MagicMock()
     provisioner = SchemaProvisioner(client=client, catalog="prod", schema="mem")
     provisioner.apply()
-    for call in client.execute.call_args_list:
-        assert "CREATE TABLE IF NOT EXISTS" in call.args[0]
+    statements = [call.args[0] for call in client.execute.call_args_list]
+    # First statement creates the schema idempotently
+    assert "CREATE SCHEMA IF NOT EXISTS" in statements[0]
+    # Remaining statements create tables idempotently
+    for stmt in statements[1:]:
+        assert "CREATE TABLE IF NOT EXISTS" in stmt
