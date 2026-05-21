@@ -6,6 +6,6 @@ from lakehouse_memory.config import EmbeddingConfig, MemoryConfig
 from lakehouse_memory.memory import Memory
 from lakehouse_memory.scope import Scope
 
-__version__ = "0.1.0b1"
+__version__ = "0.1.0b2"
 
 __all__ = ["EmbeddingConfig", "Memory", "MemoryConfig", "Scope", "__version__"]
