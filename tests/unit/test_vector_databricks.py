@@ -99,12 +99,14 @@ def test_ensure_indexes_creates_endpoint_when_missing() -> None:
         {"endpoint_status": {"state": "PROVISIONING"}},
         {"endpoint_status": {"state": "ONLINE"}},
     ]
-    fake_client.create_delta_sync_index.return_value = {"status": {"ready": False}}
+    fake_client.create_delta_sync_index.return_value = {
+        "status": {"ready": False, "detailed_state": "PROVISIONING_ENDPOINT"}
+    }
     fake_client.get_index.side_effect = [
-        {"status": {"ready": False}},
-        {"status": {"ready": True}},
-        {"status": {"ready": False}},
-        {"status": {"ready": True}},
+        {"status": {"ready": False, "detailed_state": "PROVISIONING_ENDPOINT"}},
+        {"status": {"ready": True, "detailed_state": "ONLINE_NO_PENDING_UPDATE"}},
+        {"status": {"ready": False, "detailed_state": "PROVISIONING_ENDPOINT"}},
+        {"status": {"ready": True, "detailed_state": "ONLINE_NO_PENDING_UPDATE"}},
     ]
 
     with (
@@ -144,8 +146,8 @@ def test_ensure_indexes_skips_endpoint_creation_when_already_online() -> None:
         "endpoints": [{"name": "ep", "endpoint_status": {"state": "ONLINE"}}],
     }
     fake_client.get_index.side_effect = [
-        {"status": {"ready": True}},
-        {"status": {"ready": True}},
+        {"status": {"ready": True, "detailed_state": "ONLINE_NO_PENDING_UPDATE"}},
+        {"status": {"ready": True, "detailed_state": "ONLINE_NO_PENDING_UPDATE"}},
     ]
 
     with (
@@ -176,8 +178,8 @@ def test_ensure_indexes_is_idempotent_when_indexes_already_exist() -> None:
     }
     fake_client.create_delta_sync_index.side_effect = Exception("RESOURCE_ALREADY_EXISTS")
     fake_client.get_index.side_effect = [
-        {"status": {"ready": True}},
-        {"status": {"ready": True}},
+        {"status": {"ready": True, "detailed_state": "ONLINE_NO_PENDING_UPDATE"}},
+        {"status": {"ready": True, "detailed_state": "ONLINE_NO_PENDING_UPDATE"}},
     ]
 
     with (

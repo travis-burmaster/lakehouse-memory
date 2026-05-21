@@ -216,23 +216,37 @@ def _primary_key_for(source_table: str) -> str:
 
 
 def _wait_for_index_ready(client: Any, endpoint_name: str, index_name: str) -> None:
-    """Poll until the index status.ready is True.
+    """Poll until the index is ONLINE with no pending update.
+
+    Waits for `detailed_state == "ONLINE_NO_PENDING_UPDATE"` (not just
+    `ready=True`) so that the underlying DLT pipeline is fully IDLE before
+    the next index creation starts. This avoids QUOTA_EXCEEDED errors on
+    workspaces that limit concurrent BRICKINDEX pipelines to 1.
 
     The SDK's `get_index` returns a VectorSearchIndex object; use `.describe()`
-    to get the status dict (shape: {"status": {"ready": bool, ...}, ...}).
+    to get the status dict (shape: {"status": {"ready": bool, "detailed_state": str, ...}, ...}).
     """
+    _TERMINAL_FAILED_STATES = {"OFFLINE_FAILED", "OFFLINE", "OFFLINE_DEGRADED"}
     deadline = time.time() + _INDEX_POLL_TIMEOUT_S
     while time.time() < deadline:
         index_obj = client.get_index(endpoint_name=endpoint_name, index_name=index_name)
         # index_obj is a VectorSearchIndex; .describe() returns a plain dict.
         info = index_obj.describe() if hasattr(index_obj, "describe") else index_obj
         if isinstance(info, dict):
-            ready = info.get("status", {}).get("ready")
+            status = info.get("status", {})
+            detailed_state = status.get("detailed_state", "")
         else:
-            ready = getattr(getattr(info, "status", None), "ready", None)
-        if ready:
+            status_obj = getattr(info, "status", None)
+            detailed_state = getattr(status_obj, "detailed_state", "") or ""
+        if detailed_state == "ONLINE_NO_PENDING_UPDATE":
             return
+        if detailed_state in _TERMINAL_FAILED_STATES:
+            raise RuntimeError(
+                f"Vector Search index {index_name!r} entered terminal state "
+                f"{detailed_state!r}. Check the DLT pipeline in the workspace UI."
+            )
         time.sleep(_INDEX_POLL_INTERVAL_S)
     raise TimeoutError(
-        f"Vector Search index {index_name!r} did not become READY within {_INDEX_POLL_TIMEOUT_S}s"
+        f"Vector Search index {index_name!r} did not reach ONLINE_NO_PENDING_UPDATE "
+        f"within {_INDEX_POLL_TIMEOUT_S}s"
     )
