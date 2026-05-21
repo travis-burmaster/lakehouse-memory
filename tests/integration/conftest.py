@@ -129,6 +129,11 @@ def wait_for_searchable(store, query: str, expected_id: str, timeout_s: int = 36
     _index = getattr(store, "_index", None)
     _trigger_sync = getattr(_index, "trigger_sync", None)
 
+    # SemanticStore exposes retrieve(); EpisodicStore exposes search().
+    _search_fn = getattr(store, "search", None) or getattr(store, "retrieve", None)
+    if _search_fn is None:
+        raise AttributeError(f"{type(store).__name__} has neither search() nor retrieve()")
+
     deadline = time.time() + timeout_s
     while time.time() < deadline:
         if _trigger_sync is not None:
@@ -136,7 +141,7 @@ def wait_for_searchable(store, query: str, expected_id: str, timeout_s: int = 36
                 _trigger_sync()
             except Exception:
                 pass  # best-effort; sync may already be in-progress
-        results = store.search(query, k=10)
+        results = _search_fn(query, k=10)
         if any(r.get(alias) == expected_id for r in results for alias in _PK_ALIASES):
             return
         time.sleep(5)
