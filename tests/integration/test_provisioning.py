@@ -1,8 +1,8 @@
 """Integration tests: provisioning is idempotent and creates real resources."""
+
 from __future__ import annotations
 
 import pytest
-
 from databricks.vector_search.client import VectorSearchClient
 
 
@@ -10,9 +10,7 @@ from databricks.vector_search.client import VectorSearchClient
 def test_schema_and_tables_exist(
     live_memory, sql_client, test_catalog, ephemeral_schema_name
 ) -> None:
-    rows = sql_client.execute(
-        f"SHOW TABLES IN {test_catalog}.{ephemeral_schema_name}"
-    )
+    rows = sql_client.execute(f"SHOW TABLES IN {test_catalog}.{ephemeral_schema_name}")
     table_names = {row.get("tableName") or row.get("table_name") for row in rows}
     assert {"episodic", "semantic", "working"}.issubset(table_names), (
         f"Expected episodic/semantic/working in {table_names}"

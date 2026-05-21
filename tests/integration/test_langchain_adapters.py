@@ -7,9 +7,9 @@ for chat-history round-trip).
 LakehouseSemanticRetriever wraps semantic.retrieve which reads through the
 semantic Vector Search index; we wait for sync after upsert before retrieval.
 """
+
 from __future__ import annotations
 
-import pytest
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.runnables import RunnableLambda
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -65,7 +65,11 @@ def test_chat_history_round_trip(
     index, so there's no Delta Sync wait here.
     """
     mem = _scoped_memory_with_index(
-        live_memory, "episodic", workspace_url, access_token, vector_search_endpoint,
+        live_memory,
+        "episodic",
+        workspace_url,
+        access_token,
+        vector_search_endpoint,
         user_id="u_lc_chat",
     )
     chat = mem.as_langchain_chat_history(limit=10)
@@ -85,7 +89,11 @@ def test_semantic_retriever_returns_documents_after_sync(
     vector_search_endpoint,
 ) -> None:
     mem = _scoped_memory_with_index(
-        live_memory, "semantic", workspace_url, access_token, vector_search_endpoint,
+        live_memory,
+        "semantic",
+        workspace_url,
+        access_token,
+        vector_search_endpoint,
         user_id="u_lc_retriever",
     )
     fact_id = mem.semantic.upsert(fact="Integration tests cover the LC retriever.")
@@ -106,7 +114,11 @@ def test_runnable_with_message_history_end_to_end(
 ) -> None:
     """A trivial RunnableLambda + LakehouseChatHistory through RunnableWithMessageHistory."""
     mem = _scoped_memory_with_index(
-        live_memory, "episodic", workspace_url, access_token, vector_search_endpoint,
+        live_memory,
+        "episodic",
+        workspace_url,
+        access_token,
+        vector_search_endpoint,
         user_id="u_lc_runnable",
     )
 

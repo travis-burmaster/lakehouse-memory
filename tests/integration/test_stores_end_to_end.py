@@ -1,4 +1,5 @@
 """Integration tests: write → wait for sync → read across all three stores."""
+
 from __future__ import annotations
 
 import time
@@ -22,9 +23,7 @@ def test_episodic_recent_returns_ordered_events(live_memory) -> None:
     scoped = live_memory.with_scope(user_id="u_test2", session_id="s_1")
     ids = []
     for i in range(3):
-        ids.append(
-            scoped.episodic.write(event_type="ping", payload={"i": i}, text=f"event {i}")
-        )
+        ids.append(scoped.episodic.write(event_type="ping", payload={"i": i}, text=f"event {i}"))
         # tiny stagger so created_at differs
         time.sleep(0.5)
 
@@ -50,8 +49,7 @@ def test_semantic_upsert_writes_to_delta(live_memory) -> None:
         source="conversation:s_1",
     )
     rows = live_memory._client.execute(
-        f"SELECT fact_id, fact FROM {live_memory._config.fqn('semantic')} "
-        f"WHERE fact_id = :fact_id",
+        f"SELECT fact_id, fact FROM {live_memory._config.fqn('semantic')} WHERE fact_id = :fact_id",
         {"fact_id": fact_id},
     )
     assert rows, "semantic upsert did not produce a row"

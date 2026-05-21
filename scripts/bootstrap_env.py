@@ -1,0 +1,184 @@
+"""Interactive helper to populate `.env` for integration tests.
+
+Usage:
+    python scripts/bootstrap_env.py
+
+Requires:
+    - The venv at .venv/ with this project installed
+    - You ready to paste in a personal access token (https://docs.databricks.com/dev-tools/api/latest/authentication.html#token-management-api)
+
+The script never logs your token to disk except inside the .env file you choose.
+"""
+
+from __future__ import annotations
+
+import getpass
+import os
+import sys
+from pathlib import Path
+
+WORKSPACE_HOST_DEFAULT = "https://dbc-a7283391-107f.cloud.databricks.com"
+TEST_SCHEMA_DEFAULT = "lakehouse_memory_test"
+
+
+def main() -> int:
+    repo_root = Path(__file__).resolve().parent.parent
+    env_path = repo_root / ".env"
+
+    if env_path.exists():
+        confirm = input(f"{env_path} already exists. Overwrite? [y/N] ").strip().lower()
+        if confirm != "y":
+            print("Aborted.")
+            return 0
+
+    print()
+    print("This script will populate .env by querying your Databricks workspace.")
+    print("You'll need a personal access token (User Settings -> Developer ->")
+    print("Access tokens -> Generate new token). Paste it below when prompted.")
+    print()
+
+    host = input(f"Workspace host [{WORKSPACE_HOST_DEFAULT}]: ").strip() or WORKSPACE_HOST_DEFAULT
+    if not host.startswith("http"):
+        host = "https://" + host
+    host = host.rstrip("/")
+
+    token = getpass.getpass("Personal access token (hidden): ").strip()
+    if not token:
+        print("No token provided. Aborting.", file=sys.stderr)
+        return 1
+
+    # Defer SDK import until after we have inputs; faster startup
+    try:
+        from databricks.sdk import WorkspaceClient
+    except ImportError:
+        print(
+            "databricks-sdk not installed. Activate the venv: source .venv/bin/activate",
+            file=sys.stderr,
+        )
+        return 1
+
+    print()
+    print("Connecting to Databricks ...")
+    client = WorkspaceClient(host=host, token=token)
+
+    # Sanity check
+    try:
+        me = client.current_user.me()
+        print(f"  ✓ Authenticated as {me.user_name}")
+    except Exception as e:
+        print(f"  ✗ Authentication failed: {e}", file=sys.stderr)
+        return 1
+
+    # Pick a warehouse
+    print()
+    print("Listing SQL warehouses ...")
+    warehouses = list(client.warehouses.list())
+    if not warehouses:
+        print("  ✗ No SQL warehouses found. Create one in the UI first.", file=sys.stderr)
+        return 1
+    print()
+    for i, w in enumerate(warehouses):
+        state = getattr(w, "state", None) or "?"
+        print(f"  [{i}] {w.name}  ({state}, id={w.id})")
+    picked = _pick("warehouse", len(warehouses))
+    warehouse = warehouses[picked]
+    http_path = f"/sql/1.0/warehouses/{warehouse.id}"
+    print(f"  -> http_path: {http_path}")
+
+    # Pick a vector search endpoint
+    print()
+    print("Listing Vector Search endpoints ...")
+    try:
+        endpoints_resp = client.vector_search_endpoints.list_endpoints()
+        endpoints = list(endpoints_resp)
+    except Exception as e:
+        print(f"  ✗ Could not list Vector Search endpoints: {e}", file=sys.stderr)
+        print("    (Vector Search may not be enabled on this workspace.)")
+        return 1
+
+    if not endpoints:
+        print("  No Vector Search endpoints found.")
+        ans = (
+            input("  Create a STANDARD endpoint named 'lakehouse_memory_test'? [y/N] ")
+            .strip()
+            .lower()
+        )
+        if ans != "y":
+            print("    Skipping. You'll need to create one in the UI before running tests.")
+            return 1
+        from databricks.sdk.service.vectorsearch import EndpointType
+
+        client.vector_search_endpoints.create_endpoint_and_wait(
+            name="lakehouse_memory_test",
+            endpoint_type=EndpointType.STANDARD,
+        )
+        vs_endpoint_name = "lakehouse_memory_test"
+    else:
+        print()
+        for i, ep in enumerate(endpoints):
+            ep_type = getattr(ep, "endpoint_type", None) or "?"
+            ep_state = getattr(getattr(ep, "endpoint_status", None), "state", "?")
+            print(f"  [{i}] {ep.name}  ({ep_type}, {ep_state})")
+        picked = _pick("endpoint", len(endpoints))
+        vs_endpoint_name = endpoints[picked].name
+    print(f"  -> vector_search_endpoint: {vs_endpoint_name}")
+
+    # Pick a catalog
+    print()
+    print("Listing catalogs you can see ...")
+    catalogs = list(client.catalogs.list())
+    if not catalogs:
+        print("  ✗ No catalogs visible. Need at least one UC catalog to write to.", file=sys.stderr)
+        return 1
+    print()
+    for i, c in enumerate(catalogs):
+        print(f"  [{i}] {c.name}")
+    picked = _pick("catalog", len(catalogs))
+    catalog = catalogs[picked].name
+    print(f"  -> catalog: {catalog}")
+
+    # Build .env
+    print()
+    print(f"Writing {env_path} ...")
+    env_path.write_text(
+        "\n".join(
+            [
+                "# Auto-generated by scripts/bootstrap_env.py. Edit by hand if needed.",
+                "",
+                "LAKEHOUSE_MEMORY_INTEGRATION=1",
+                "",
+                f"DATABRICKS_HOST={host}",
+                f"DATABRICKS_TOKEN={token}",
+                f"DATABRICKS_HTTP_PATH={http_path}",
+                "",
+                f"DATABRICKS_VECTOR_SEARCH_ENDPOINT={vs_endpoint_name}",
+                "",
+                f"LAKEHOUSE_MEMORY_TEST_CATALOG={catalog}",
+                f"LAKEHOUSE_MEMORY_TEST_SCHEMA={TEST_SCHEMA_DEFAULT}",
+                "",
+            ]
+        )
+    )
+    # Restrict perms — token is in here
+    os.chmod(env_path, 0o600)
+    print(f"  ✓ Wrote {env_path} (chmod 600)")
+    print()
+    print("Done. You can now run:")
+    print("  pytest tests/integration -v")
+    return 0
+
+
+def _pick(label: str, n: int) -> int:
+    while True:
+        raw = input(f"Pick {label} [0-{n - 1}, default 0]: ").strip() or "0"
+        try:
+            i = int(raw)
+            if 0 <= i < n:
+                return i
+        except ValueError:
+            pass
+        print(f"  Please enter a number from 0 to {n - 1}.")
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -69,9 +69,7 @@ class SchemaProvisioner:
         self._schema = schema
 
     def apply(self) -> None:
-        self._client.execute(
-            f"CREATE SCHEMA IF NOT EXISTS {self._catalog}.{self._schema}"
-        )
+        self._client.execute(f"CREATE SCHEMA IF NOT EXISTS {self._catalog}.{self._schema}")
         self._client.execute(episodic_ddl(self._catalog, self._schema))
         self._client.execute(semantic_ddl(self._catalog, self._schema))
         self._client.execute(working_ddl(self._catalog, self._schema))

@@ -14,7 +14,7 @@ Reads are eventually consistent: sync delay is typically seconds to minutes.
 from __future__ import annotations
 
 import time
-from typing import Any
+from typing import Any, ClassVar
 
 from databricks.vector_search.client import VectorSearchClient
 
@@ -23,7 +23,7 @@ from lakehouse_memory.config import MemoryConfig
 _ENDPOINT_POLL_INTERVAL_S = 10
 _ENDPOINT_POLL_TIMEOUT_S = 600  # 10 min — endpoint cold start can be ~5 min
 _INDEX_POLL_INTERVAL_S = 5
-_INDEX_POLL_TIMEOUT_S = 1200  # 20 min — first sync for a fresh index (can be slow on cold endpoints)
+_INDEX_POLL_TIMEOUT_S = 1200  # 20 min — first sync (can be slow on cold endpoints)
 
 
 class DatabricksVectorIndex:
@@ -34,7 +34,7 @@ class DatabricksVectorIndex:
     # (episodic: event_id; semantic: fact_id). The default covers only the
     # embedding column so a misconfigured instance fails visibly rather than
     # silently fetching cross-store columns that don't exist in the index.
-    _DEFAULT_COLUMNS: list[str] = ["text"]
+    _DEFAULT_COLUMNS: ClassVar[list[str]] = ["text"]
 
     def __init__(
         self,
