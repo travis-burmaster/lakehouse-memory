@@ -90,6 +90,7 @@ def live_memory(
         index_name=f"{test_catalog}.{ephemeral_schema_name}.episodic_idx",
         workspace_url=workspace_url,
         access_token=access_token,
+        columns=["event_id", "text", "user_id", "session_id", "agent_id"],
     )
 
     mem = Memory(
@@ -113,12 +114,30 @@ def live_memory(
         print(f"Teardown DROP SCHEMA failed: {e}", flush=True)
 
 
-def wait_for_searchable(store, query: str, expected_id: str, timeout_s: int = 180) -> None:
-    """Poll store.search until expected_id appears in results or timeout."""
+def wait_for_searchable(store, query: str, expected_id: str, timeout_s: int = 360) -> None:
+    """Poll store.search until expected_id appears in results or timeout.
+
+    Checks both the generic ``id`` key and store-specific primary-key aliases
+    (``event_id`` for episodic, ``fact_id`` for semantic) so this helper works
+    for Delta Sync indexes whose column names come from the source Delta table.
+
+    For TRIGGERED Delta Sync indexes, also calls ``trigger_sync()`` on the
+    store's index each poll cycle so that new rows are picked up promptly.
+    """
+    _PK_ALIASES = ("id", "event_id", "fact_id")
+    # Access underlying index to fire on-demand sync (TRIGGERED pipeline)
+    _index = getattr(store, "_index", None)
+    _trigger_sync = getattr(_index, "trigger_sync", None)
+
     deadline = time.time() + timeout_s
     while time.time() < deadline:
+        if _trigger_sync is not None:
+            try:
+                _trigger_sync()
+            except Exception:
+                pass  # best-effort; sync may already be in-progress
         results = store.search(query, k=10)
-        if any(r.get("id") == expected_id for r in results):
+        if any(r.get(alias) == expected_id for r in results for alias in _PK_ALIASES):
             return
         time.sleep(5)
     pytest.fail(f"id {expected_id!r} not searchable after {timeout_s}s")

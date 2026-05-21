@@ -13,7 +13,6 @@ Reads are eventually consistent: sync delay is typically seconds to minutes.
 
 from __future__ import annotations
 
-import json
 import time
 from typing import Any
 
@@ -30,6 +29,13 @@ _INDEX_POLL_TIMEOUT_S = 1200  # 20 min — first sync for a fresh index (can be 
 class DatabricksVectorIndex:
     """`VectorIndex` Protocol implementation backed by a Delta Sync index."""
 
+    # Default columns to return when none are specified explicitly.
+    # In practice callers should always pass the correct columns for their store
+    # (episodic: event_id; semantic: fact_id). The default covers only the
+    # embedding column so a misconfigured instance fails visibly rather than
+    # silently fetching cross-store columns that don't exist in the index.
+    _DEFAULT_COLUMNS: list[str] = ["text"]
+
     def __init__(
         self,
         endpoint_name: str,
@@ -37,12 +43,14 @@ class DatabricksVectorIndex:
         embedding_column: str = "text",
         workspace_url: str | None = None,
         access_token: str | None = None,
+        columns: list[str] | None = None,
     ) -> None:
         self._endpoint_name = endpoint_name
         self._index_name = index_name
         self._embedding_column = embedding_column
         self._workspace_url = workspace_url
         self._access_token = access_token
+        self._columns = columns if columns is not None else list(self._DEFAULT_COLUMNS)
 
     def upsert(self, records: list[dict[str, Any]]) -> None:
         # No-op: Delta Sync handles index population from the Delta source.
@@ -63,17 +71,36 @@ class DatabricksVectorIndex:
             index_name=self._index_name,
         )
         kwargs: dict[str, Any] = {
+            "columns": self._columns,
             "query_text": query,
             "num_results": k,
         }
         if filter:
-            kwargs["filters_json"] = json.dumps(filter)
+            kwargs["filters"] = filter
         response = index.similarity_search(**kwargs)
         return _unpack_search_response(response)
 
     def delete(self, ids: list[str]) -> None:
         # No-op: deletes propagate via Delta source.
         return None
+
+    def trigger_sync(self) -> None:
+        """Trigger an on-demand sync for a TRIGGERED Delta Sync index.
+
+        Calls the Vector Search REST API ``POST .../sync`` endpoint so that
+        data written to the source Delta table is picked up by the index.
+        Only necessary for ``pipeline_type="TRIGGERED"`` indexes; CONTINUOUS
+        indexes sync automatically.
+        """
+        vs_client = VectorSearchClient(
+            workspace_url=self._workspace_url,
+            personal_access_token=self._access_token,
+        )
+        index_obj = vs_client.get_index(
+            endpoint_name=self._endpoint_name,
+            index_name=self._index_name,
+        )
+        index_obj.sync()
 
 
 def _unpack_search_response(response: dict[str, Any]) -> list[dict[str, Any]]:
@@ -115,6 +142,12 @@ def ensure_indexes(
 
     _ensure_endpoint(client, endpoint_name)
 
+    # Columns to retrieve per store type (must match source Delta table columns)
+    _STORE_COLUMNS: dict[str, list[str]] = {
+        "episodic": ["event_id", "text", "user_id", "session_id", "agent_id"],
+        "semantic": ["fact_id", "text", "user_id", "session_id", "agent_id"],
+    }
+
     indexes: dict[str, DatabricksVectorIndex] = {}
     for table in ("episodic", "semantic"):
         index_name = f"{config.catalog}.{config.schema_name}.{table}_idx"
@@ -132,6 +165,7 @@ def ensure_indexes(
             index_name=index_name,
             workspace_url=workspace_url,
             access_token=access_token,
+            columns=_STORE_COLUMNS[table],
         )
     return indexes
 

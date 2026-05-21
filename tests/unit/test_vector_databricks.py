@@ -6,7 +6,6 @@ no network calls are made. We verify the wiring, not the SDK.
 
 from __future__ import annotations
 
-import json
 from unittest.mock import MagicMock, patch
 
 from lakehouse_memory.config import MemoryConfig
@@ -62,7 +61,7 @@ def test_databricks_vector_index_search_queries_sdk_and_unpacks_results() -> Non
     call_kwargs = fake_index_obj.similarity_search.call_args.kwargs
     assert call_kwargs["query_text"] == "hello"
     assert call_kwargs["num_results"] == 5
-    assert json.loads(call_kwargs["filters_json"]) == {"user_id": "u_1"}
+    assert call_kwargs["filters"] == {"user_id": "u_1"}
 
     assert results == [
         {"id": "id-1", "text": "first text", "score": 0.92},
@@ -87,8 +86,8 @@ def test_databricks_vector_index_search_without_filter() -> None:
         idx.search(query="x", k=3, filter=None)
 
     call_kwargs = fake_index_obj.similarity_search.call_args.kwargs
-    # filters_json should be absent or None/empty when no filter provided
-    assert call_kwargs.get("filters_json") in (None, "{}", "")
+    # filters should be absent when no filter provided
+    assert "filters" not in call_kwargs
 
 
 def test_ensure_indexes_creates_endpoint_when_missing() -> None:
