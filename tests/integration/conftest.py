@@ -68,9 +68,9 @@ def sql_client(workspace_url: str, access_token: str, http_path: str):
 
 @pytest.fixture(scope="session")
 def live_memory(
-    sql_client,
     workspace_url: str,
     access_token: str,
+    http_path: str,
     vector_search_endpoint: str,
     test_catalog: str,
     ephemeral_schema_name: str,
@@ -80,37 +80,30 @@ def live_memory(
     On teardown: DROP SCHEMA CASCADE (drops the indexes inside it too).
     The Vector Search endpoint is NOT deleted.
     """
-    from lakehouse_memory import Memory, MemoryConfig, Scope
-    from lakehouse_memory.vector_databricks import DatabricksVectorIndex
+    from lakehouse_memory import Memory
+    from lakehouse_memory.client import SqlConnectorClient
 
-    config = MemoryConfig(catalog=test_catalog, schema_name=ephemeral_schema_name)
-
-    episodic_index = DatabricksVectorIndex(
-        endpoint_name=vector_search_endpoint,
-        index_name=f"{test_catalog}.{ephemeral_schema_name}.episodic_idx",
+    mem = Memory.from_databricks(
+        catalog=test_catalog,
+        schema_name=ephemeral_schema_name,
         workspace_url=workspace_url,
         access_token=access_token,
-        columns=["event_id", "text", "user_id", "session_id", "agent_id"],
-    )
-
-    mem = Memory(
-        config=config,
-        client=sql_client,
-        index=episodic_index,
-        scope=Scope(),
-    )
-
-    mem.provision(
+        http_path=http_path,
         vector_search_endpoint=vector_search_endpoint,
-        workspace_url=workspace_url,
-        access_token=access_token,
     )
+    mem.provision()  # uses stashed creds
 
     yield mem
 
+    hostname = workspace_url.replace("https://", "").replace("http://", "").rstrip("/")
+    teardown_client = SqlConnectorClient(
+        server_hostname=hostname, http_path=http_path, access_token=access_token
+    )
     try:
-        sql_client.execute(f"DROP SCHEMA IF EXISTS {test_catalog}.{ephemeral_schema_name} CASCADE")
-    except Exception as e:
+        teardown_client.execute(
+            f"DROP SCHEMA IF EXISTS {test_catalog}.{ephemeral_schema_name} CASCADE"
+        )
+    except Exception as e:  # noqa: BLE001
         print(f"Teardown DROP SCHEMA failed: {e}", flush=True)
 
 

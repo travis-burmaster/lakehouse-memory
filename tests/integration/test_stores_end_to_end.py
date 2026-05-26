@@ -37,11 +37,8 @@ def test_episodic_recent_returns_ordered_events(live_memory) -> None:
 def test_semantic_upsert_writes_to_delta(live_memory) -> None:
     """Verify the semantic upsert produces a row in the Delta table.
 
-    Note: the live_memory fixture wires episodic_idx as Memory.index for both
-    episodic and semantic stores (known design wart documented at top of the
-    M2 plan). So we verify the SQL-level write via a direct query rather than
-    through mem.semantic.retrieve(). The retriever path is covered in
-    test_langchain_adapters.py via a separately-built Memory.
+    We verify the SQL-level write via a direct query. The retriever path
+    (semantic vector search) is covered in test_langchain_adapters.py.
     """
     scoped = live_memory.with_scope(user_id="u_test3")
     fact_id = scoped.semantic.upsert(

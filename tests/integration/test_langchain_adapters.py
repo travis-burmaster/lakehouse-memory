@@ -14,64 +14,33 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.runnables import RunnableLambda
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-from lakehouse_memory import Memory, Scope
-from lakehouse_memory.vector_databricks import DatabricksVectorIndex
+from lakehouse_memory import Memory
 
 from .conftest import wait_for_searchable
-
-
-def _scoped_memory_with_index(
-    live_memory,
-    table: str,
-    workspace_url: str,
-    access_token: str,
-    vector_search_endpoint: str,
-    user_id: str,
-):
-    """Build a Memory scoped to `user_id` and wired with the index for the given table.
-
-    Each store needs its own column list because episodic uses event_id and semantic
-    uses fact_id as the primary key.
-    """
-    columns_by_table = {
-        "episodic": ["event_id", "text", "user_id", "session_id", "agent_id"],
-        "semantic": ["fact_id", "text", "user_id", "session_id", "agent_id", "source"],
-    }
-    index_name = f"{live_memory._config.catalog}.{live_memory._config.schema_name}.{table}_idx"
-    index = DatabricksVectorIndex(
-        endpoint_name=vector_search_endpoint,
-        index_name=index_name,
-        workspace_url=workspace_url,
-        access_token=access_token,
-        columns=columns_by_table[table],
-    )
-    return Memory(
-        config=live_memory._config,
-        client=live_memory._client,
-        index=index,
-        scope=Scope(user_id=user_id, session_id="lc_test"),
-    )
 
 
 def test_chat_history_round_trip(
     live_memory,
     workspace_url,
     access_token,
+    http_path,
     vector_search_endpoint,
+    test_catalog,
 ) -> None:
     """add_message → messages returns the same content (no vector sync needed).
 
     chat.messages reads from episodic.recent via SQL, not via the vector
     index, so there's no Delta Sync wait here.
     """
-    mem = _scoped_memory_with_index(
-        live_memory,
-        "episodic",
-        workspace_url,
-        access_token,
-        vector_search_endpoint,
-        user_id="u_lc_chat",
-    )
+    mem = Memory.from_databricks(
+        catalog=test_catalog,
+        schema_name=live_memory._config.schema_name,
+        workspace_url=workspace_url,
+        access_token=access_token,
+        http_path=http_path,
+        vector_search_endpoint=vector_search_endpoint,
+    ).with_scope(user_id="u_lc_chat", session_id="lc_test")
+
     chat = mem.as_langchain_chat_history(limit=10)
     chat.add_message(HumanMessage(content="hello workspace"))
     chat.add_message(AIMessage(content="hi back"))
@@ -86,17 +55,21 @@ def test_semantic_retriever_returns_documents_after_sync(
     live_memory,
     workspace_url,
     access_token,
+    http_path,
     vector_search_endpoint,
+    test_catalog,
 ) -> None:
-    mem = _scoped_memory_with_index(
-        live_memory,
-        "semantic",
-        workspace_url,
-        access_token,
-        vector_search_endpoint,
-        user_id="u_lc_retriever",
-    )
+    mem = Memory.from_databricks(
+        catalog=test_catalog,
+        schema_name=live_memory._config.schema_name,
+        workspace_url=workspace_url,
+        access_token=access_token,
+        http_path=http_path,
+        vector_search_endpoint=vector_search_endpoint,
+    ).with_scope(user_id="u_lc_retriever")
+
     fact_id = mem.semantic.upsert(fact="Integration tests cover the LC retriever.")
+    mem.semantic.trigger_sync()
     # Wait for sync via the semantic store's underlying index
     wait_for_searchable(mem.semantic, "integration tests", fact_id)
 
@@ -110,17 +83,19 @@ def test_runnable_with_message_history_end_to_end(
     live_memory,
     workspace_url,
     access_token,
+    http_path,
     vector_search_endpoint,
+    test_catalog,
 ) -> None:
     """A trivial RunnableLambda + LakehouseChatHistory through RunnableWithMessageHistory."""
-    mem = _scoped_memory_with_index(
-        live_memory,
-        "episodic",
-        workspace_url,
-        access_token,
-        vector_search_endpoint,
-        user_id="u_lc_runnable",
-    )
+    mem = Memory.from_databricks(
+        catalog=test_catalog,
+        schema_name=live_memory._config.schema_name,
+        workspace_url=workspace_url,
+        access_token=access_token,
+        http_path=http_path,
+        vector_search_endpoint=vector_search_endpoint,
+    ).with_scope(user_id="u_lc_runnable")
 
     def _echo(inputs):
         # Inputs is {"input": str, "history": list[BaseMessage]}
