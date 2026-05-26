@@ -110,3 +110,12 @@ def test_search_queries_vector_index_with_scope_filter() -> None:
 
     results = store.search("struggled", k=5)
     assert [r["id"] for r in results] == ["1"]
+
+
+def test_episodic_trigger_sync_delegates_to_index() -> None:
+    from unittest.mock import MagicMock
+
+    idx = MagicMock()
+    store = EpisodicStore(client=MagicMock(), index=idx, fqn="c.s.episodic", scope=Scope())
+    store.trigger_sync()
+    idx.trigger_sync.assert_called_once_with()

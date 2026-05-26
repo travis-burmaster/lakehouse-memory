@@ -27,7 +27,8 @@ def _make_memory(scope: Scope | None = None) -> tuple[Memory, MagicMock]:
     mem = Memory(
         config=MemoryConfig(catalog="t", schema_name="t"),
         client=client,
-        index=MockVectorIndex(),
+        episodic_index=MockVectorIndex(),
+        semantic_index=MockVectorIndex(),
         scope=scope or Scope(session_id="s_1"),
     )
     return mem, client

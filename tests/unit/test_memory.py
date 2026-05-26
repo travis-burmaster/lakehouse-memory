@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -16,7 +16,8 @@ def test_memory_exposes_three_stores() -> None:
     mem = Memory(
         config=MemoryConfig(catalog="prod", schema_name="mem"),
         client=MagicMock(),
-        index=MockVectorIndex(),
+        episodic_index=MockVectorIndex(),
+        semantic_index=MockVectorIndex(),
         scope=Scope(user_id="u_1"),
     )
     assert mem.episodic is not None
@@ -28,7 +29,8 @@ def test_memory_stores_use_correct_fqns() -> None:
     mem = Memory(
         config=MemoryConfig(catalog="prod", schema_name="mem"),
         client=MagicMock(),
-        index=MockVectorIndex(),
+        episodic_index=MockVectorIndex(),
+        semantic_index=MockVectorIndex(),
         scope=Scope(user_id="u_1"),
     )
     assert mem.episodic._fqn == "prod.mem.episodic"
@@ -41,7 +43,8 @@ def test_memory_provision_applies_schema() -> None:
     mem = Memory(
         config=MemoryConfig(catalog="prod", schema_name="mem"),
         client=client,
-        index=MockVectorIndex(),
+        episodic_index=MockVectorIndex(),
+        semantic_index=MockVectorIndex(),
         scope=Scope(),
     )
     mem.provision()
@@ -58,7 +61,8 @@ def test_memory_with_scope_returns_new_memory_with_merged_scope() -> None:
     mem = Memory(
         config=MemoryConfig(catalog="prod", schema_name="mem"),
         client=MagicMock(),
-        index=MockVectorIndex(),
+        episodic_index=MockVectorIndex(),
+        semantic_index=MockVectorIndex(),
         scope=Scope(user_id="u_1"),
     )
     scoped = mem.with_scope(session_id="s_1")
@@ -72,7 +76,8 @@ def test_memory_provision_without_endpoint_runs_only_schema() -> None:
     mem = Memory(
         config=MemoryConfig(catalog="prod", schema_name="mem"),
         client=client,
-        index=MockVectorIndex(),
+        episodic_index=MockVectorIndex(),
+        semantic_index=MockVectorIndex(),
         scope=Scope(),
     )
     mem.provision()  # no vector_search_endpoint
@@ -82,13 +87,12 @@ def test_memory_provision_without_endpoint_runs_only_schema() -> None:
 
 def test_memory_provision_with_endpoint_calls_ensure_indexes() -> None:
     """When vector_search_endpoint is given, ensure_indexes is invoked."""
-    from unittest.mock import patch
-
     client = MagicMock()
     mem = Memory(
         config=MemoryConfig(catalog="prod", schema_name="mem"),
         client=client,
-        index=MockVectorIndex(),
+        episodic_index=MockVectorIndex(),
+        semantic_index=MockVectorIndex(),
         scope=Scope(),
     )
 
@@ -116,8 +120,70 @@ def test_memory_provision_requires_creds_when_endpoint_given() -> None:
     mem = Memory(
         config=MemoryConfig(catalog="prod", schema_name="mem"),
         client=MagicMock(),
-        index=MockVectorIndex(),
+        episodic_index=MockVectorIndex(),
+        semantic_index=MockVectorIndex(),
         scope=Scope(),
     )
     with pytest.raises(ValueError, match="workspace_url"):
         mem.provision(vector_search_endpoint="vs_ep")
+
+
+def test_memory_explicit_per_store_indexes() -> None:
+    ep = MockVectorIndex()
+    sem = MockVectorIndex()
+    mem = Memory(
+        config=MemoryConfig(catalog="c", schema_name="s"),
+        client=MagicMock(),
+        episodic_index=ep,
+        semantic_index=sem,
+        scope=Scope(user_id="u_1"),
+    )
+    assert mem.episodic._index is ep
+    assert mem.semantic._index is sem
+
+
+def test_memory_deprecated_index_param_warns_and_shares_index() -> None:
+    idx = MockVectorIndex()
+    with pytest.warns(DeprecationWarning, match="episodic_index"):
+        mem = Memory(
+            config=MemoryConfig(catalog="c", schema_name="s"),
+            client=MagicMock(),
+            index=idx,
+            scope=Scope(),
+        )
+    assert mem.episodic._index is idx
+    assert mem.semantic._index is idx
+
+
+def test_memory_rejects_both_old_and_new_index_params() -> None:
+    with pytest.raises(TypeError, match="not both"):
+        Memory(
+            config=MemoryConfig(catalog="c", schema_name="s"),
+            client=MagicMock(),
+            index=MockVectorIndex(),
+            episodic_index=MockVectorIndex(),
+        )
+
+
+def test_memory_requires_some_index() -> None:
+    with pytest.raises(TypeError, match="requires"):
+        Memory(
+            config=MemoryConfig(catalog="c", schema_name="s"),
+            client=MagicMock(),
+        )
+
+
+def test_memory_with_scope_preserves_per_store_indexes() -> None:
+    ep = MockVectorIndex()
+    sem = MockVectorIndex()
+    mem = Memory(
+        config=MemoryConfig(catalog="c", schema_name="s"),
+        client=MagicMock(),
+        episodic_index=ep,
+        semantic_index=sem,
+        scope=Scope(user_id="u_1"),
+    )
+    scoped = mem.with_scope(session_id="s_1")
+    assert scoped.episodic._index is ep
+    assert scoped.semantic._index is sem
+    assert scoped.scope == Scope(user_id="u_1", session_id="s_1")

@@ -93,3 +93,12 @@ def test_forget_deletes_by_id_in_scope() -> None:
     assert "user_id = :user_id" in sql
     assert params == {"fact_id": "abc", "user_id": "u_1"}
     assert idx.search("x", k=5) == []
+
+
+def test_semantic_trigger_sync_delegates_to_index() -> None:
+    from unittest.mock import MagicMock
+
+    idx = MagicMock()
+    store = SemanticStore(client=MagicMock(), index=idx, fqn="c.s.semantic", scope=Scope())
+    store.trigger_sync()
+    idx.trigger_sync.assert_called_once_with()

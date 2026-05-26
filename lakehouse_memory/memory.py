@@ -29,23 +29,50 @@ class Memory:
         self,
         config: MemoryConfig,
         client: DatabricksClient,
-        index: VectorIndex,
+        index: VectorIndex | None = None,
+        *,
+        episodic_index: VectorIndex | None = None,
+        semantic_index: VectorIndex | None = None,
         scope: Scope | None = None,
     ) -> None:
+        if index is not None and (episodic_index is not None or semantic_index is not None):
+            raise TypeError(
+                "Pass either index= (deprecated) or episodic_index=/semantic_index=, not both."
+            )
+        if index is not None:
+            import warnings
+
+            warnings.warn(
+                "Memory(index=...) is deprecated; use episodic_index= and semantic_index=, "
+                "or Memory.from_databricks(...). Will be removed in 0.2.0.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            episodic_index = index
+            semantic_index = index
+        if episodic_index is None or semantic_index is None:
+            raise TypeError(
+                "Memory requires episodic_index= and semantic_index= (or the deprecated index=)."
+            )
+
         self._config = config
         self._client = client
-        self._index = index
+        self._episodic_index = episodic_index
+        self._semantic_index = semantic_index
         self._scope = scope or Scope()
+        self._vs_endpoint: str | None = None
+        self._workspace_url: str | None = None
+        self._access_token: str | None = None
 
         self.episodic = EpisodicStore(
             client=client,
-            index=index,
+            index=episodic_index,
             fqn=config.fqn("episodic"),
             scope=self._scope,
         )
         self.semantic = SemanticStore(
             client=client,
-            index=index,
+            index=semantic_index,
             fqn=config.fqn("semantic"),
             scope=self._scope,
         )
@@ -68,12 +95,8 @@ class Memory:
     ) -> None:
         """Idempotently create the three memory tables and, optionally, the Vector Search indexes.
 
-        When `vector_search_endpoint` is None (default), only the UC tables are
-        provisioned — preserving the M1 behavior.
-
-        When `vector_search_endpoint` is set, also ensures the Vector Search
-        endpoint exists and creates Delta Sync indexes for the episodic and
-        semantic tables. Requires `workspace_url` and `access_token`.
+        When no Vector Search endpoint is available (neither passed nor stashed
+        by from_databricks), only the UC tables are provisioned.
         """
         SchemaProvisioner(
             client=self._client,
@@ -81,15 +104,19 @@ class Memory:
             schema=self._config.schema_name,
         ).apply()
 
-        if vector_search_endpoint is not None:
-            if not workspace_url or not access_token:
+        endpoint = vector_search_endpoint or self._vs_endpoint
+        ws = workspace_url or self._workspace_url
+        tok = access_token or self._access_token
+
+        if endpoint is not None:
+            if not ws or not tok:
                 raise ValueError("vector_search_endpoint requires workspace_url and access_token")
             from lakehouse_memory.vector_databricks import ensure_indexes
 
             ensure_indexes(
-                workspace_url=workspace_url,
-                access_token=access_token,
-                endpoint_name=vector_search_endpoint,
+                workspace_url=ws,
+                access_token=tok,
+                endpoint_name=endpoint,
                 config=self._config,
             )
 
@@ -102,12 +129,17 @@ class Memory:
     ) -> Memory:
         """Return a new Memory with scope merged from the given fields."""
         override = Scope(user_id=user_id, session_id=session_id, agent_id=agent_id)
-        return Memory(
+        new = Memory(
             config=self._config,
             client=self._client,
-            index=self._index,
+            episodic_index=self._episodic_index,
+            semantic_index=self._semantic_index,
             scope=self._scope.merge(override),
         )
+        new._vs_endpoint = self._vs_endpoint
+        new._workspace_url = self._workspace_url
+        new._access_token = self._access_token
+        return new
 
     def as_langchain_chat_history(self, limit: int = 100) -> LakehouseChatHistory:
         """Return a LangChain BaseChatMessageHistory wired to this Memory's episodic store.

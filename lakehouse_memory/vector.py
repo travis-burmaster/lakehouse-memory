@@ -23,6 +23,8 @@ class VectorIndex(Protocol):
 
     def delete(self, ids: list[str]) -> None: ...
 
+    def trigger_sync(self) -> None: ...
+
 
 class MockVectorIndex:
     """In-memory mock used in unit tests.
@@ -58,3 +60,7 @@ class MockVectorIndex:
     def delete(self, ids: list[str]) -> None:
         for i in ids:
             self._records.pop(i, None)
+
+    def trigger_sync(self) -> None:
+        # No-op: the mock is always immediately consistent.
+        return None

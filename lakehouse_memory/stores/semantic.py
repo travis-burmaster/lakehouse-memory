@@ -81,6 +81,10 @@ class SemanticStore:
     def retrieve(self, query: str, k: int = 5) -> list[dict[str, Any]]:
         return self._index.search(query=query, k=k, filter=self._scope.to_metadata_filter() or None)
 
+    def trigger_sync(self) -> None:
+        """Trigger the underlying Vector Search index sync (no-op for mock/CONTINUOUS)."""
+        self._index.trigger_sync()
+
     def forget(self, fact_id: str) -> None:
         scope_sql, scope_params = self._scope.to_where_clause()
         conditions = ["fact_id = :fact_id"]

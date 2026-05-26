@@ -51,3 +51,10 @@ def test_mock_index_upsert_with_existing_id_replaces() -> None:
     results = idx.search(query="second", k=5)
     assert results[0]["text"] == "second"
     assert len([r for r in results if r["id"] == "1"]) == 1
+
+
+def test_mock_index_trigger_sync_is_noop() -> None:
+    idx = MockVectorIndex()
+    idx.upsert([{"id": "1", "text": "x"}])
+    idx.trigger_sync()
+    assert idx.search("x", k=5)
