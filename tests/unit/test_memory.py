@@ -96,7 +96,7 @@ def test_memory_provision_with_endpoint_calls_ensure_indexes() -> None:
         scope=Scope(),
     )
 
-    with patch("lakehouse_memory.vector_databricks.ensure_indexes") as mock_ensure:
+    with patch("lakehouse_memory.memory.ensure_indexes") as mock_ensure:
         mem.provision(
             vector_search_endpoint="vs_ep",
             workspace_url="https://example.cloud.databricks.com",
@@ -187,3 +187,59 @@ def test_memory_with_scope_preserves_per_store_indexes() -> None:
     assert scoped.episodic._index is ep
     assert scoped.semantic._index is sem
     assert scoped.scope == Scope(user_id="u_1", session_id="s_1")
+
+
+def test_from_databricks_builds_wired_memory() -> None:
+    from unittest.mock import patch
+
+    with (
+        patch("lakehouse_memory.memory.SqlConnectorClient") as mock_client_cls,
+        patch("lakehouse_memory.memory.DatabricksVectorIndex") as mock_idx_cls,
+    ):
+        mem = Memory.from_databricks(
+            catalog="prod",
+            schema_name="mem",
+            workspace_url="https://example.cloud.databricks.com",
+            access_token="dapi-test",
+            http_path="/sql/1.0/warehouses/abc",
+            vector_search_endpoint="vs_ep",
+            scope=Scope(user_id="u_1"),
+        )
+
+    client_kwargs = mock_client_cls.call_args.kwargs
+    assert client_kwargs["server_hostname"] == "example.cloud.databricks.com"
+    assert client_kwargs["http_path"] == "/sql/1.0/warehouses/abc"
+    assert client_kwargs["access_token"] == "dapi-test"
+
+    assert mock_idx_cls.call_count == 2
+    index_names = {c.kwargs["index_name"] for c in mock_idx_cls.call_args_list}
+    assert index_names == {"prod.mem.episodic_idx", "prod.mem.semantic_idx"}
+
+    assert mem._vs_endpoint == "vs_ep"
+    assert mem._workspace_url == "https://example.cloud.databricks.com"
+    assert mem._access_token == "dapi-test"
+    assert mem.scope == Scope(user_id="u_1")
+
+
+def test_from_databricks_provision_uses_stashed_creds() -> None:
+    from unittest.mock import patch
+
+    with (
+        patch("lakehouse_memory.memory.SqlConnectorClient"),
+        patch("lakehouse_memory.memory.DatabricksVectorIndex"),
+        patch("lakehouse_memory.memory.SchemaProvisioner") as mock_prov,
+        patch("lakehouse_memory.memory.ensure_indexes") as mock_ensure,
+    ):
+        mem = Memory.from_databricks(
+            catalog="prod",
+            schema_name="mem",
+            workspace_url="https://example.cloud.databricks.com",
+            access_token="dapi-test",
+            http_path="/sql/1.0/warehouses/abc",
+            vector_search_endpoint="vs_ep",
+        )
+        mem.provision()
+
+    mock_prov.return_value.apply.assert_called_once()
+    mock_ensure.assert_called_once()
+    assert mock_ensure.call_args.kwargs["endpoint_name"] == "vs_ep"

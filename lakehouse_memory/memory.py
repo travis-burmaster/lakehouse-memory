@@ -8,14 +8,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from lakehouse_memory.client import DatabricksClient
-from lakehouse_memory.config import MemoryConfig
+from lakehouse_memory.client import DatabricksClient, SqlConnectorClient
+from lakehouse_memory.config import EmbeddingConfig, MemoryConfig
 from lakehouse_memory.schema import SchemaProvisioner
 from lakehouse_memory.scope import Scope
 from lakehouse_memory.stores.episodic import EpisodicStore
 from lakehouse_memory.stores.semantic import SemanticStore
 from lakehouse_memory.stores.working import WorkingStore
 from lakehouse_memory.vector import VectorIndex
+from lakehouse_memory.vector_databricks import DatabricksVectorIndex, ensure_indexes
 
 if TYPE_CHECKING:
     from lakehouse_memory.adapters.langchain import (
@@ -82,6 +83,61 @@ class Memory:
             scope=self._scope,
         )
 
+    @classmethod
+    def from_databricks(
+        cls,
+        *,
+        catalog: str,
+        schema_name: str,
+        workspace_url: str,
+        access_token: str,
+        http_path: str,
+        vector_search_endpoint: str,
+        scope: Scope | None = None,
+        embedding: EmbeddingConfig | None = None,
+    ) -> Memory:
+        """Build a Memory wired to real Databricks resources.
+
+        Constructs the SQL client and two Delta Sync-backed vector indexes
+        (one per store). Does NOT provision — call `mem.provision()` after.
+        """
+        config = MemoryConfig(
+            catalog=catalog,
+            schema_name=schema_name,
+            embedding=embedding or EmbeddingConfig(),
+        )
+        hostname = workspace_url.replace("https://", "").replace("http://", "").rstrip("/")
+        client = SqlConnectorClient(
+            server_hostname=hostname,
+            http_path=http_path,
+            access_token=access_token,
+        )
+        episodic_index = DatabricksVectorIndex(
+            endpoint_name=vector_search_endpoint,
+            index_name=f"{catalog}.{schema_name}.episodic_idx",
+            workspace_url=workspace_url,
+            access_token=access_token,
+            columns=["event_id", "text", "user_id", "session_id", "agent_id"],
+        )
+        semantic_index = DatabricksVectorIndex(
+            endpoint_name=vector_search_endpoint,
+            index_name=f"{catalog}.{schema_name}.semantic_idx",
+            workspace_url=workspace_url,
+            access_token=access_token,
+            columns=["fact_id", "text", "user_id", "session_id", "agent_id"],
+        )
+        mem = cls(
+            config=config,
+            client=client,
+            episodic_index=episodic_index,
+            semantic_index=semantic_index,
+            scope=scope,
+        )
+        mem._vs_endpoint = vector_search_endpoint
+        mem._workspace_url = workspace_url
+        mem._access_token = access_token
+        return mem
+
     @property
     def scope(self) -> Scope:
         return self._scope
@@ -111,8 +167,6 @@ class Memory:
         if endpoint is not None:
             if not ws or not tok:
                 raise ValueError("vector_search_endpoint requires workspace_url and access_token")
-            from lakehouse_memory.vector_databricks import ensure_indexes
-
             ensure_indexes(
                 workspace_url=ws,
                 access_token=tok,
