@@ -1,0 +1,21 @@
+# {{.project_name}}
+
+A lakehouse-memory starter: Unity Catalog-native memory for AI agents, provisioned in your Databricks workspace.
+
+## What this bundle does
+
+1. `01_setup.ipynb` — creates the UC schema, three memory tables, and two Vector Search indexes (catalog `{{.catalog}}`, schema `{{.schema_name}}`), then smoke-tests writes and reads.
+2. `02_chat_agent.ipynb` — a multi-turn chat agent that uses episodic, semantic, and working memory, calling the `{{.llm_endpoint}}` model-serving endpoint.
+
+## Quickstart
+
+```bash
+databricks bundle deploy
+databricks bundle run setup_job
+```
+
+Then open `notebooks/02_chat_agent.ipynb` in the workspace and run all cells.
+
+## Production
+
+This starter demonstrates the pattern. Compaction at scale, multi-tenant RLS, regression evals, and observability are deliberately out of scope. For production help, see [burmaster.com](https://burmaster.com).

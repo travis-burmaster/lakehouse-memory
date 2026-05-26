@@ -1,0 +1,29 @@
+{
+  "properties": {
+    "project_name": {
+      "type": "string",
+      "default": "lakehouse-memory-demo",
+      "description": "Name of the bundle project (folder created on init)."
+    },
+    "catalog": {
+      "type": "string",
+      "default": "main",
+      "description": "Unity Catalog catalog to write memory tables into."
+    },
+    "schema_name": {
+      "type": "string",
+      "default": "agent_memory_demo",
+      "description": "Unity Catalog schema (created automatically)."
+    },
+    "vector_search_endpoint": {
+      "type": "string",
+      "description": "Name of an existing Vector Search endpoint in your workspace."
+    },
+    "llm_endpoint": {
+      "type": "string",
+      "default": "databricks-meta-llama-3-1-70b-instruct",
+      "description": "Model-serving endpoint the chat agent calls."
+    }
+  },
+  "success_message": "\nlakehouse-memory bundle created in {{.project_name}}.\nNext:\n  cd {{.project_name}}\n  databricks bundle deploy\n  databricks bundle run setup_job\n"
+}

@@ -1,0 +1,32 @@
+bundle:
+  name: {{.project_name}}
+
+variables:
+  catalog:
+    default: {{.catalog}}
+  schema_name:
+    default: {{.schema_name}}
+  vector_search_endpoint:
+    default: {{.vector_search_endpoint}}
+  llm_endpoint:
+    default: {{.llm_endpoint}}
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: ${workspace.current_user.workspace_url}
+
+resources:
+  jobs:
+    setup_job:
+      name: lakehouse-memory-setup
+      tasks:
+        - task_key: setup
+          notebook_task:
+            notebook_path: ../notebooks/01_setup.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
+              schema_name: ${var.schema_name}
+              vector_search_endpoint: ${var.vector_search_endpoint}
