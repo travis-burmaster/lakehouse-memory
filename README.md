@@ -29,16 +29,22 @@ and a working chat agent — in your Databricks workspace:
 
 ```bash
 databricks bundle init https://github.com/travis-burmaster/lakehouse-memory \
-  --template-dir templates/lakehouse-memory-bundle
-cd <project-name>
+  --template-dir templates/lakehouse-memory-bundle \
+  --output-dir my-memory-demo
+cd my-memory-demo
 databricks bundle deploy
 databricks bundle run setup_job
 ```
 
 You'll be prompted for your catalog, schema, Vector Search endpoint, SQL
-warehouse HTTP path, and LLM serving endpoint. After `setup_job` finishes,
-open `notebooks/02_chat_agent.ipynb` and run all cells — a memory-backed
-agent in under 10 minutes.
+warehouse HTTP path, and LLM serving endpoint. (`--output-dir` is the project
+root itself, not a parent directory.) After `setup_job` finishes, open
+`notebooks/02_chat_agent.ipynb` and run all cells.
+
+The setup job typically takes ~15 minutes end-to-end: the bulk is the library
+install plus the one-time provisioning of two Delta Sync Vector Search indexes
+(which sync serially on workspaces with a single-pipeline quota). Subsequent
+runs against an already-provisioned schema are fast.
 
 ## Manual setup (advanced)
 
