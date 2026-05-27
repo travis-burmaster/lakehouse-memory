@@ -1,0 +1,88 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# lakehouse-memory \u2014 Setup\n",
+    "\n",
+    "Provisions the memory layer: a Unity Catalog schema, three memory tables\n",
+    "(episodic, semantic, working), and two Vector Search indexes. Then smoke-tests\n",
+    "writes and reads. Run all cells; you should see a \u2713 banner at the end."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%pip install --pre --quiet \"lakehouse-memory>=0.1.0b3\"\n",
+    "dbutils.library.restartPython()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from lakehouse_memory import Memory\n",
+    "\n",
+    "dbutils.widgets.text(\"catalog\", \"{{.catalog}}\")\n",
+    "dbutils.widgets.text(\"schema_name\", \"{{.schema_name}}\")\n",
+    "dbutils.widgets.text(\"vector_search_endpoint\", \"{{.vector_search_endpoint}}\")\n",
+    "dbutils.widgets.text(\"warehouse_http_path\", \"{{.warehouse_http_path}}\")\n",
+    "\n",
+    "ctx = dbutils.notebook.entry_point.getDbutils().notebook().getContext()\n",
+    "host = \"https://\" + spark.conf.get(\"spark.databricks.workspaceUrl\")\n",
+    "token = ctx.apiToken().get()\n",
+    "\n",
+    "mem = Memory.from_databricks(\n",
+    "    catalog=dbutils.widgets.get(\"catalog\"),\n",
+    "    schema_name=dbutils.widgets.get(\"schema_name\"),\n",
+    "    workspace_url=host,\n",
+    "    access_token=token,\n",
+    "    http_path=dbutils.widgets.get(\"warehouse_http_path\"),\n",
+    "    vector_search_endpoint=dbutils.widgets.get(\"vector_search_endpoint\"),\n",
+    ")\n",
+    "mem.provision()\n",
+    "print(\"Provisioned schema + tables + indexes.\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import time\n",
+    "\n",
+    "scoped = mem.with_scope(user_id=\"setup_smoke\", session_id=\"s_setup\")\n",
+    "scoped.episodic.write(event_type=\"setup_probe\", payload={\"ok\": True}, text=\"setup smoke event\")\n",
+    "scoped.semantic.upsert(fact=\"Setup ran successfully.\", source=\"01_setup\")\n",
+    "scoped.working.set(\"setup_done\", \"true\")\n",
+    "\n",
+    "scoped.episodic.trigger_sync()\n",
+    "scoped.semantic.trigger_sync()\n",
+    "time.sleep(10)\n",
+    "\n",
+    "assert scoped.working.get(\"setup_done\") == \"true\"\n",
+    "print(\"\u2713 Provisioned and smoke-tested. Open 02_chat_agent.ipynb next.\")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "name": "python",
+   "version": "3.11.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

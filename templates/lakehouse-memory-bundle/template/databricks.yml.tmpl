@@ -10,6 +10,8 @@ variables:
     default: {{.vector_search_endpoint}}
   llm_endpoint:
     default: {{.llm_endpoint}}
+  warehouse_http_path:
+    default: {{.warehouse_http_path}}
 
 targets:
   dev:
@@ -28,3 +30,5 @@ resources:
               catalog: ${var.catalog}
               schema_name: ${var.schema_name}
               vector_search_endpoint: ${var.vector_search_endpoint}
+              warehouse_http_path: ${var.warehouse_http_path}
+              llm_endpoint: ${var.llm_endpoint}
