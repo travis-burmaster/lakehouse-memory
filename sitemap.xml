@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://travis-burmaster.github.io/lakehouse-memory/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://travis-burmaster.github.io/lakehouse-memory/api/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://travis-burmaster.github.io/lakehouse-memory/concepts/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://travis-burmaster.github.io/lakehouse-memory/production-gaps/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+    <url>
+         <loc>https://travis-burmaster.github.io/lakehouse-memory/quickstart/</loc>
+         <lastmod>2026-05-27</lastmod>
+    </url>
+</urlset>

@@ -1,0 +1,2826 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Unity Catalog-native memory for AI agents on Databricks">
+      
+      
+      
+        <link rel="canonical" href="https://travis-burmaster.github.io/lakehouse-memory/api/">
+      
+      
+        <link rel="prev" href="../quickstart/">
+      
+      
+        <link rel="next" href="../production-gaps/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>API Reference - lakehouse-memory</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="lakehouse-memory" class="md-header__button md-logo" aria-label="lakehouse-memory" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            lakehouse-memory
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              API Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="deep-orange"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/travis-burmaster/lakehouse-memory" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    travis-burmaster/lakehouse-memory
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="lakehouse-memory" class="md-nav__button md-logo" aria-label="lakehouse-memory" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    lakehouse-memory
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/travis-burmaster/lakehouse-memory" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    travis-burmaster/lakehouse-memory
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.as_langchain_chat_history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        as_langchain_chat_history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.as_langchain_retriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        as_langchain_retriever
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.from_databricks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_databricks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.provision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        provision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.with_scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        with_scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memoryconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MemoryConfig
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.config.MemoryConfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MemoryConfig
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MemoryConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.config.MemoryConfig.fqn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fqn
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#embeddingconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EmbeddingConfig
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.config.EmbeddingConfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EmbeddingConfig
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.scope.Scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.scope.Scope.merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        merge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.scope.Scope.to_metadata_filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to_metadata_filter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.scope.Scope.to_where_clause" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to_where_clause
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#langchain-adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LangChain Adapters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LangChain Adapters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lakehousechathistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LakehouseChatHistory
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.adapters.langchain.LakehouseChatHistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LakehouseChatHistory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LakehouseChatHistory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.adapters.langchain.LakehouseChatHistory.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.adapters.langchain.LakehouseChatHistory.clear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehousesemanticretriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LakehouseSemanticRetriever
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.adapters.langchain.LakehouseSemanticRetriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LakehouseSemanticRetriever
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../production-gaps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Production Gaps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.as_langchain_chat_history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        as_langchain_chat_history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.as_langchain_retriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        as_langchain_retriever
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.from_databricks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_databricks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.provision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        provision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.memory.Memory.with_scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        with_scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memoryconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MemoryConfig
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.config.MemoryConfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MemoryConfig
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MemoryConfig">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.config.MemoryConfig.fqn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        fqn
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#embeddingconfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EmbeddingConfig
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.config.EmbeddingConfig" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EmbeddingConfig
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.scope.Scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.scope.Scope.merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        merge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.scope.Scope.to_metadata_filter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to_metadata_filter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.scope.Scope.to_where_clause" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        to_where_clause
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#langchain-adapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LangChain Adapters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LangChain Adapters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lakehousechathistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LakehouseChatHistory
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.adapters.langchain.LakehouseChatHistory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LakehouseChatHistory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LakehouseChatHistory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.adapters.langchain.LakehouseChatHistory.__init__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __init__
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehouse_memory.adapters.langchain.LakehouseChatHistory.clear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lakehousesemanticretriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LakehouseSemanticRetriever
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lakehouse_memory.adapters.langchain.LakehouseSemanticRetriever" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LakehouseSemanticRetriever
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="api-reference">API Reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h1>
+<p>Auto-generated from source docstrings.</p>
+<hr />
+<h2 id="memory">Memory<a class="headerlink" href="#memory" title="Permanent link">&para;</a></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="lakehouse_memory.memory.Memory" class="doc doc-heading">
+            <code>lakehouse_memory.memory.Memory</code>
+
+
+<a href="#lakehouse_memory.memory.Memory" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>Composition root that wires episodic, semantic, and working stores.</p>
+<p>Each <code>Memory</code> instance holds a SQL client, one vector index per store,
+and a <code>Scope</code> that filters all reads and tags all writes to a specific
+user / session / agent combination.</p>
+<p>The canonical way to create a <code>Memory</code> wired to real Databricks resources is
+<code>Memory.from_databricks</code>.  After construction, call <code>provision()</code> once to
+create the underlying Unity Catalog tables and Vector Search indexes.</p>
+<p>Example::</p>
+<div class="highlight"><pre><span></span><code>mem = Memory.from_databricks(
+    catalog=&quot;my_catalog&quot;,
+    schema_name=&quot;agent_memory&quot;,
+    workspace_url=&quot;https://my-workspace.azuredatabricks.net&quot;,
+    access_token=&quot;dapi...&quot;,
+    http_path=&quot;/sql/1.0/warehouses/abc123&quot;,
+    vector_search_endpoint=&quot;my_vs_endpoint&quot;,
+)
+mem.provision()
+scoped = mem.with_scope(user_id=&quot;u1&quot;, session_id=&quot;s1&quot;)
+scoped.episodic.write(event_type=&quot;chat_message&quot;, payload={}, text=&quot;Hello&quot;)
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.memory.Memory.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">episodic_index</span><span class="p">,</span> <span class="n">semantic_index</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#lakehouse_memory.memory.Memory.__init__" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Initialise Memory with explicit collaborators.</p>
+<p>Prefer <code>Memory.from_databricks</code> for production use.  This constructor
+is useful in tests where you supply stub clients and no-op indexes.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>config</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.config.MemoryConfig" href="#lakehouse_memory.config.MemoryConfig">MemoryConfig</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Catalog/schema/embedding settings for this Memory instance.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>client</code>
+            </td>
+            <td>
+                  <code><span title="lakehouse_memory.client.DatabricksClient">DatabricksClient</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>SQL client used by all three stores for DDL and DML.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>episodic_index</code>
+            </td>
+            <td>
+                  <code><span title="lakehouse_memory.vector.VectorIndex">VectorIndex</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Vector index used by the episodic store for
+similarity search.  Pass a no-op <code>VectorIndex</code> to skip
+vector search for episodic events.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>semantic_index</code>
+            </td>
+            <td>
+                  <code><span title="lakehouse_memory.vector.VectorIndex">VectorIndex</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Vector index used by the semantic store for
+similarity search.  Pass a no-op <code>VectorIndex</code> to skip
+vector search for facts.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>scope</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.scope.Scope
+
+
+  
+      dataclass
+  " href="#lakehouse_memory.scope.Scope">Scope</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional identity scope applied to every read and write.
+Defaults to an empty <code>Scope()</code> (no filtering).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.memory.Memory.as_langchain_chat_history" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">as_langchain_chat_history</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span></code>
+
+<a href="#lakehouse_memory.memory.Memory.as_langchain_chat_history" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return a LangChain <code>BaseChatMessageHistory</code> wired to the episodic store.</p>
+<p>Requires the <code>[langchain]</code> optional extra::</p>
+<div class="highlight"><pre><span></span><code>pip install lakehouse-memory[langchain]
+</code></pre></div>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>limit</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Maximum number of recent chat messages to return when
+<code>messages</code> is accessed.  Defaults to <code>100</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>100</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.adapters.langchain.LakehouseChatHistory" href="#lakehouse_memory.adapters.langchain.LakehouseChatHistory">LakehouseChatHistory</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A <code>LakehouseChatHistory</code> instance scoped to this Memory's scope.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.memory.Memory.as_langchain_retriever" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">as_langchain_retriever</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span></code>
+
+<a href="#lakehouse_memory.memory.Memory.as_langchain_retriever" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return a LangChain <code>BaseRetriever</code> wired to the semantic store.</p>
+<p>Requires the <code>[langchain]</code> optional extra::</p>
+<div class="highlight"><pre><span></span><code>pip install lakehouse-memory[langchain]
+</code></pre></div>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>k</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of semantically-similar facts to return per query.
+Defaults to <code>5</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>5</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.adapters.langchain.LakehouseSemanticRetriever" href="#lakehouse_memory.adapters.langchain.LakehouseSemanticRetriever">LakehouseSemanticRetriever</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A <code>LakehouseSemanticRetriever</code> instance scoped to this Memory's</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.adapters.langchain.LakehouseSemanticRetriever" href="#lakehouse_memory.adapters.langchain.LakehouseSemanticRetriever">LakehouseSemanticRetriever</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>scope.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.memory.Memory.from_databricks" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">from_databricks</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">catalog</span><span class="p">,</span> <span class="n">schema_name</span><span class="p">,</span> <span class="n">workspace_url</span><span class="p">,</span> <span class="n">access_token</span><span class="p">,</span> <span class="n">http_path</span><span class="p">,</span> <span class="n">vector_search_endpoint</span><span class="p">,</span> <span class="n">scope</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">embedding</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#lakehouse_memory.memory.Memory.from_databricks" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a Memory wired to real Databricks resources.</p>
+<p>Constructs a <code>SqlConnectorClient</code> and two Delta Sync-backed
+<code>DatabricksVectorIndex</code> objects (one for episodic events, one for
+semantic facts) and stashes the VS credentials so that a later call to
+<code>provision()</code> can create the indexes without repeating them.</p>
+<p>Does <strong>not</strong> provision — call <code>mem.provision()</code> after construction to
+idempotently create the Unity Catalog tables and Vector Search indexes.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>catalog</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Unity Catalog catalog name (e.g. <code>"my_catalog"</code>).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>schema_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Schema inside <em>catalog</em> where memory tables live
+(e.g. <code>"agent_memory"</code>).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>workspace_url</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Full Databricks workspace URL, including scheme
+(e.g. <code>"https://my-workspace.azuredatabricks.net"</code>).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>access_token</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Databricks personal-access token or service-principal
+secret used for both SQL Warehouse and Vector Search API calls.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>http_path</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>SQL Warehouse HTTP path
+(e.g. <code>"/sql/1.0/warehouses/abc123"</code>).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>vector_search_endpoint</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the existing Databricks Vector
+Search endpoint to back both indexes.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>scope</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.scope.Scope
+
+
+  
+      dataclass
+  " href="#lakehouse_memory.scope.Scope">Scope</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional identity scope to pre-apply to every store.
+Defaults to an empty <code>Scope()</code> (no filtering).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>embedding</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.config.EmbeddingConfig" href="#lakehouse_memory.config.EmbeddingConfig">EmbeddingConfig</a> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional embedding endpoint configuration.  Defaults to
+<code>EmbeddingConfig()</code> (<code>databricks-gte-large-en</code>, 1024 dims).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.memory.Memory" href="#lakehouse_memory.memory.Memory">Memory</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A fully-wired <code>Memory</code> instance.  Call <code>provision()</code> before</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.memory.Memory" href="#lakehouse_memory.memory.Memory">Memory</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>reading or writing to ensure the underlying tables and indexes exist.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.memory.Memory.provision" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">provision</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">vector_search_endpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">workspace_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">access_token</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#lakehouse_memory.memory.Memory.provision" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Idempotently create the UC schema + tables and, optionally, the Vector Search indexes.</p>
+<p>Always creates the Unity Catalog schema (if absent) and the three memory
+tables (<code>episodic</code>, <code>semantic</code>, <code>working</code>).  When a Vector Search
+endpoint is available — either supplied here or stashed by
+<code>from_databricks</code> — also creates the two Delta Sync indexes.</p>
+<p>Safe to call multiple times; existing tables and indexes are left
+untouched.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>vector_search_endpoint</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the Databricks Vector Search endpoint
+to use when creating indexes.  Falls back to the value stashed by
+<code>from_databricks</code>, if any.  Pass <code>None</code> (and provide no
+stashed value) to skip index creation entirely.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>workspace_url</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Workspace URL needed for Vector Search API calls.
+Falls back to the value stashed by <code>from_databricks</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>access_token</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Databricks PAT or service-principal secret for Vector
+Search API calls.  Falls back to the value stashed by
+<code>from_databricks</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <em>vector_search_endpoint</em> is resolved but
+<em>workspace_url</em> or <em>access_token</em> cannot be determined.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.memory.Memory.with_scope" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">with_scope</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">user_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">session_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">agent_id</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+<a href="#lakehouse_memory.memory.Memory.with_scope" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return a new Memory with scope fields merged from the given arguments.</p>
+<p>Any field you pass overrides the corresponding field on the current
+scope; fields you omit (or pass as <code>None</code>) are inherited unchanged.
+The new instance shares the same SQL client and vector indexes as the
+original — no new connections are opened.  Stashed VS credentials
+(workspace_url, access_token, endpoint) are forwarded so that
+<code>provision()</code> may still be called on the derived instance.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>user_id</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Override the <code>user_id</code> dimension of the scope.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>session_id</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Override the <code>session_id</code> dimension of the scope.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>agent_id</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Override the <code>agent_id</code> dimension of the scope.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.memory.Memory" href="#lakehouse_memory.memory.Memory">Memory</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A new <code>Memory</code> instance with the merged scope applied to all</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.memory.Memory" href="#lakehouse_memory.memory.Memory">Memory</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>three stores.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h2 id="memoryconfig">MemoryConfig<a class="headerlink" href="#memoryconfig" title="Permanent link">&para;</a></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="lakehouse_memory.config.MemoryConfig" class="doc doc-heading">
+            <code>lakehouse_memory.config.MemoryConfig</code>
+
+
+<a href="#lakehouse_memory.config.MemoryConfig" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>Top-level configuration for a <code>Memory</code> instance.</p>
+<p>Holds the Unity Catalog coordinates (catalog + schema) that determine where
+the three memory tables are stored, plus the embedding configuration used
+by Vector Search.  Instances are frozen (immutable) after construction.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="lakehouse_memory.config.MemoryConfig.catalog">catalog</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Unity Catalog catalog name.  Must be non-empty.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="lakehouse_memory.config.MemoryConfig.schema_name">schema_name</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Schema inside <em>catalog</em> where the <code>episodic</code>,
+<code>semantic</code>, and <code>working</code> tables reside.  Must be non-empty.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="lakehouse_memory.config.MemoryConfig.embedding">embedding</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.config.EmbeddingConfig" href="#lakehouse_memory.config.EmbeddingConfig">EmbeddingConfig</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Embedding endpoint configuration used when creating and
+querying Vector Search indexes.  Defaults to
+<code>EmbeddingConfig()</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.config.MemoryConfig.fqn" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fqn</span><span class="p">(</span><span class="n">table</span><span class="p">)</span></code>
+
+<a href="#lakehouse_memory.config.MemoryConfig.fqn" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return the fully-qualified Unity Catalog name for a table.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>table</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Unqualified table name (e.g. <code>"episodic"</code>).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Three-part identifier <code>&lt;catalog&gt;.&lt;schema_name&gt;.&lt;table&gt;</code> suitable</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>for use in SQL statements and Vector Search index names.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h2 id="embeddingconfig">EmbeddingConfig<a class="headerlink" href="#embeddingconfig" title="Permanent link">&para;</a></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="lakehouse_memory.config.EmbeddingConfig" class="doc doc-heading">
+            <code>lakehouse_memory.config.EmbeddingConfig</code>
+
+
+<a href="#lakehouse_memory.config.EmbeddingConfig" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="pydantic.BaseModel">BaseModel</span></code></p>
+
+
+
+        <p>Configuration for the embedding model used by Databricks Vector Search.</p>
+<p>Specifies which Foundation Model API endpoint produces the embeddings that
+back the episodic and semantic vector indexes, along with the expected
+output dimensionality.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="lakehouse_memory.config.EmbeddingConfig.endpoint_name">endpoint_name</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Databricks Foundation Model API endpoint name that
+generates embeddings.  Must match the endpoint used when the Vector
+Search index was created.  Defaults to
+<code>"databricks-gte-large-en"</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="lakehouse_memory.config.EmbeddingConfig.dimensions">dimensions</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dimensionality of the embedding vectors produced by
+<em>endpoint_name</em>.  Must be positive.  Defaults to <code>1024</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h2 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="lakehouse_memory.scope.Scope" class="doc doc-heading">
+            <code>lakehouse_memory.scope.Scope</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#lakehouse_memory.scope.Scope" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>Identity scope that constrains memory reads and tags memory writes.</p>
+<p>A <code>Scope</code> represents a specific combination of identity dimensions:
+<code>user_id</code>, <code>session_id</code>, and/or <code>agent_id</code>.  Any subset of these
+may be set; unset fields act as wildcards — they are absent from SQL
+<code>WHERE</code> clauses and vector metadata filters, so they match all values.</p>
+<p><code>Scope</code> is the single source of truth for scope-related SQL and vector
+filter construction.  Every store applies these filters automatically to
+every read operation and includes all set fields as columns on every write.</p>
+<p>Instances are frozen (immutable).  Use <code>merge</code> to derive a new <code>Scope</code>
+with some fields overridden.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="lakehouse_memory.scope.Scope.user_id">user_id</span></code></td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Identifies the end-user whose memory is being accessed.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="lakehouse_memory.scope.Scope.session_id">session_id</span></code></td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Identifies the conversation session.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="lakehouse_memory.scope.Scope.agent_id">agent_id</span></code></td>
+            <td>
+                  <code><span title="str">str</span> | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Identifies the agent (or agent variant) operating on memory.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.scope.Scope.merge" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">merge</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></code>
+
+<a href="#lakehouse_memory.scope.Scope.merge" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return a new Scope with <em>other</em>'s set fields overriding self's.</p>
+<p>Fields that are <code>None</code> on <em>other</em> are inherited from <code>self</code>
+unchanged.  This allows incremental narrowing of scope without losing
+previously set dimensions.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>other</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.scope.Scope
+
+
+  
+      dataclass
+  " href="#lakehouse_memory.scope.Scope">Scope</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A <code>Scope</code> whose non-<code>None</code> fields will override the
+corresponding fields on <code>self</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.scope.Scope
+
+
+  
+      dataclass
+  " href="#lakehouse_memory.scope.Scope">Scope</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A new frozen <code>Scope</code> instance with the merged field values.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.scope.Scope.to_metadata_filter" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">to_metadata_filter</span><span class="p">()</span></code>
+
+<a href="#lakehouse_memory.scope.Scope.to_metadata_filter" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a metadata filter dict for Databricks Vector Search queries.</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A <code>{field_name: value}</code> dict containing only the fields that are</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>set on this scope.  An empty dict is returned when no fields are</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>set (i.e., no filtering is applied).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.scope.Scope.to_where_clause" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">to_where_clause</span><span class="p">()</span></code>
+
+<a href="#lakehouse_memory.scope.Scope.to_where_clause" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a SQL WHERE-clause fragment and a bound-parameter map.</p>
+<p>Clauses are AND-joined in stable alphabetical field order so that the
+generated SQL is deterministic across Python versions and runtimes.</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A 2-tuple <code>(clause, params)</code> where <em>clause</em> is a non-empty SQL</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>fragment like <code>"agent_id = :agent_id AND user_id = :user_id"</code></p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="str">str</span>, <span title="dict">dict</span>[<span title="str">str</span>, <span title="str">str</span>]]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>and <em>params</em> is the corresponding <code>{name: value}</code> dict for</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="str">str</span>, <span title="dict">dict</span>[<span title="str">str</span>, <span title="str">str</span>]]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>parameterised queries.  Both are empty (<code>""</code> and <code>{}</code>) when no</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="str">str</span>, <span title="dict">dict</span>[<span title="str">str</span>, <span title="str">str</span>]]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>fields are set.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h2 id="langchain-adapters">LangChain Adapters<a class="headerlink" href="#langchain-adapters" title="Permanent link">&para;</a></h2>
+<h3 id="lakehousechathistory">LakehouseChatHistory<a class="headerlink" href="#lakehousechathistory" title="Permanent link">&para;</a></h3>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="lakehouse_memory.adapters.langchain.LakehouseChatHistory" class="doc doc-heading">
+            <code>lakehouse_memory.adapters.langchain.LakehouseChatHistory</code>
+
+
+<a href="#lakehouse_memory.adapters.langchain.LakehouseChatHistory" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="langchain_core.chat_history.BaseChatMessageHistory">BaseChatMessageHistory</span></code></p>
+
+
+
+        <p><code>BaseChatMessageHistory</code> backed by the episodic memory store.</p>
+<p>Bridges <code>Memory.episodic</code> to the LangChain
+<code>BaseChatMessageHistory</code> interface so that <code>LakehouseChatHistory</code> can
+be dropped directly into <code>RunnableWithMessageHistory</code>.</p>
+<p>Each chat turn is persisted as an episodic event with
+<code>event_type="chat_message"</code> and
+<code>payload={"role": "human"|"ai", "content": ...}</code>.</p>
+<p>Scope is inherited from the <code>Memory</code> instance supplied at construction
+time.  To isolate history per session, call
+<code>memory.with_scope(session_id="new-session-id")</code> before constructing
+this object.</p>
+
+
+<details class="note" open>
+  <summary>Note</summary>
+  <p><code>clear()</code> is an intentional no-op.  Episodic memory is append-only
+by design; deleting history is not supported.  To start a fresh
+conversation, change the <code>session_id</code> via
+<code>memory.with_scope(session_id=...)</code>.</p>
+</details>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.adapters.langchain.LakehouseChatHistory.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span></code>
+
+<a href="#lakehouse_memory.adapters.langchain.LakehouseChatHistory.__init__" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Initialise a <code>LakehouseChatHistory</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>memory</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.memory.Memory" href="#lakehouse_memory.memory.Memory">Memory</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A <code>Memory</code> instance (typically already scoped to a
+session via <code>memory.with_scope(session_id=...)</code>).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>limit</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Maximum number of most-recent messages to return when
+<code>messages</code> is accessed.  Defaults to <code>100</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>100</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lakehouse_memory.adapters.langchain.LakehouseChatHistory.clear" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">clear</span><span class="p">()</span></code>
+
+<a href="#lakehouse_memory.adapters.langchain.LakehouseChatHistory.clear" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>No-op: episodic memory is append-only and does not support deletion.</p>
+<p>For a fresh conversation, derive a new scoped instance via
+<code>memory.with_scope(session_id="&lt;new-session-id&gt;")</code> and pass it to a
+new <code>LakehouseChatHistory</code>.</p>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><h3 id="lakehousesemanticretriever">LakehouseSemanticRetriever<a class="headerlink" href="#lakehousesemanticretriever" title="Permanent link">&para;</a></h3>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="lakehouse_memory.adapters.langchain.LakehouseSemanticRetriever" class="doc doc-heading">
+            <code>lakehouse_memory.adapters.langchain.LakehouseSemanticRetriever</code>
+
+
+<a href="#lakehouse_memory.adapters.langchain.LakehouseSemanticRetriever" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="langchain_core.retrievers.BaseRetriever">BaseRetriever</span></code></p>
+
+
+
+        <p><code>BaseRetriever</code> backed by the semantic memory store.</p>
+<p>Bridges <code>Memory.semantic</code> to the LangChain <code>BaseRetriever</code> interface
+so that <code>LakehouseSemanticRetriever</code> can be dropped into any retrieval
+chain or used with <code>create_retrieval_chain</code>.</p>
+<p>Each retrieved fact becomes a <code>Document</code> whose <code>page_content</code> is the
+fact text; all other fact columns (source, scope fields, timestamps, etc.)
+are placed in <code>metadata</code> (<code>text</code> is excluded since it is promoted to
+<code>page_content</code>).</p>
+<p>Scope is inherited from the <code>Memory</code> instance supplied at construction
+time.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="lakehouse_memory.adapters.langchain.LakehouseSemanticRetriever.memory">memory</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="lakehouse_memory.memory.Memory" href="#lakehouse_memory.memory.Memory">Memory</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The <code>Memory</code> instance whose semantic store is queried.
+Scope filtering (user / session / agent) is applied automatically
+from <code>memory.scope</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="lakehouse_memory.adapters.langchain.LakehouseSemanticRetriever.k">k</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Number of semantically-similar facts to return per query.
+Defaults to <code>5</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "content.code.copy", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
