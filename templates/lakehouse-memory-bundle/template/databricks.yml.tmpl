@@ -15,8 +15,6 @@ targets:
   dev:
     mode: development
     default: true
-    workspace:
-      host: ${workspace.current_user.workspace_url}
 
 resources:
   jobs:
@@ -25,7 +23,7 @@ resources:
       tasks:
         - task_key: setup
           notebook_task:
-            notebook_path: ../notebooks/01_setup.ipynb
+            notebook_path: ./notebooks/01_setup.ipynb
             base_parameters:
               catalog: ${var.catalog}
               schema_name: ${var.schema_name}
