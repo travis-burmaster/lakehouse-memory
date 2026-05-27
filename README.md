@@ -52,40 +52,26 @@ runs against an already-provisioned schema are fast.
 ## Manual setup (advanced)
 
 ```python
-from lakehouse_memory import Memory, MemoryConfig, Scope
-from lakehouse_memory.client import SqlConnectorClient
-from lakehouse_memory.vector_databricks import DatabricksVectorIndex
+from lakehouse_memory import Memory, Scope
 import os
 
-config = MemoryConfig(catalog="main", schema_name="agent_memory")
-
-client = SqlConnectorClient(
-    server_hostname=os.environ["DATABRICKS_HOST"].replace("https://", ""),
+mem = Memory.from_databricks(
+    catalog="main",
+    schema_name="agent_memory",
+    workspace_url=os.environ["DATABRICKS_HOST"],
+    access_token=os.environ["DATABRICKS_TOKEN"],
     http_path=os.environ["DATABRICKS_HTTP_PATH"],
-    access_token=os.environ["DATABRICKS_TOKEN"],
-)
-
-index = DatabricksVectorIndex(
-    endpoint_name=os.environ["DATABRICKS_VECTOR_SEARCH_ENDPOINT"],
-    index_name=f"{config.catalog}.{config.schema_name}.episodic_idx",
-    workspace_url=os.environ["DATABRICKS_HOST"],
-    access_token=os.environ["DATABRICKS_TOKEN"],
-    columns=["event_id", "text", "user_id", "session_id", "agent_id"],
-)
-
-mem = Memory(config=config, client=client, index=index, scope=Scope(user_id="u_1"))
-mem.provision(
     vector_search_endpoint=os.environ["DATABRICKS_VECTOR_SEARCH_ENDPOINT"],
-    workspace_url=os.environ["DATABRICKS_HOST"],
-    access_token=os.environ["DATABRICKS_TOKEN"],
+    scope=Scope(user_id="u_1"),
 )
+mem.provision()
 
 # Write a fact
 mem.semantic.upsert(fact="User prefers SQL over Python.")
 
 # Delta Sync indexes are TRIGGERED — explicitly fire the sync after writes.
 # (For production, consider switching to CONTINUOUS pipelines.)
-mem.semantic._index.trigger_sync()
+mem.semantic.trigger_sync()
 
 # Wait for sync; production code would use exponential backoff
 import time; time.sleep(15)
@@ -102,7 +88,7 @@ retriever = mem.as_langchain_retriever(k=5)
 
 ## Production gaps
 
-(Coming in M4. Short version: compaction at scale, multi-tenant RLS, regression evals, observability, and custom retrieval strategies are deliberately not in OSS. If you want help building past those, the [Burmaster Databricks AI Practice](https://burmaster.com) does this for a living.)
+Compaction at scale, multi-tenant row-level security, regression evals, observability, and custom retrieval strategies are deliberately out of scope for the OSS core. See the [Production Gaps](https://travis-burmaster.github.io/lakehouse-memory/production-gaps/) page for the full map. If you want help building past those, the [Burmaster Databricks AI Practice](https://burmaster.com) does this for a living.
 
 ## License
 
