@@ -142,31 +142,8 @@ def test_memory_explicit_per_store_indexes() -> None:
     assert mem.semantic._index is sem
 
 
-def test_memory_deprecated_index_param_warns_and_shares_index() -> None:
-    idx = MockVectorIndex()
-    with pytest.warns(DeprecationWarning, match="episodic_index"):
-        mem = Memory(
-            config=MemoryConfig(catalog="c", schema_name="s"),
-            client=MagicMock(),
-            index=idx,
-            scope=Scope(),
-        )
-    assert mem.episodic._index is idx
-    assert mem.semantic._index is idx
-
-
-def test_memory_rejects_both_old_and_new_index_params() -> None:
-    with pytest.raises(TypeError, match="not both"):
-        Memory(
-            config=MemoryConfig(catalog="c", schema_name="s"),
-            client=MagicMock(),
-            index=MockVectorIndex(),
-            episodic_index=MockVectorIndex(),
-        )
-
-
-def test_memory_requires_some_index() -> None:
-    with pytest.raises(TypeError, match="requires"):
+def test_memory_requires_both_indexes() -> None:
+    with pytest.raises(TypeError):
         Memory(
             config=MemoryConfig(catalog="c", schema_name="s"),
             client=MagicMock(),

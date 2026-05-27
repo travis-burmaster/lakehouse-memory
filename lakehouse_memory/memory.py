@@ -30,32 +30,11 @@ class Memory:
         self,
         config: MemoryConfig,
         client: DatabricksClient,
-        index: VectorIndex | None = None,
         *,
-        episodic_index: VectorIndex | None = None,
-        semantic_index: VectorIndex | None = None,
+        episodic_index: VectorIndex,
+        semantic_index: VectorIndex,
         scope: Scope | None = None,
     ) -> None:
-        if index is not None and (episodic_index is not None or semantic_index is not None):
-            raise TypeError(
-                "Pass either index= (deprecated) or episodic_index=/semantic_index=, not both."
-            )
-        if index is not None:
-            import warnings
-
-            warnings.warn(
-                "Memory(index=...) is deprecated; use episodic_index= and semantic_index=, "
-                "or Memory.from_databricks(...). Will be removed in 0.2.0.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            episodic_index = index
-            semantic_index = index
-        if episodic_index is None or semantic_index is None:
-            raise TypeError(
-                "Memory requires episodic_index= and semantic_index= (or the deprecated index=)."
-            )
-
         self._config = config
         self._client = client
         self._episodic_index = episodic_index
