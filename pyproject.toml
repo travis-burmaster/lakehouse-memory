@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lakehouse-memory"
-version = "0.1.0b3"
+version = "0.1.0"
 description = "Unity Catalog-native episodic, semantic, and working memory for AI agents on Databricks"
 readme = "README.md"
 license = { text = "Apache-2.0" }
