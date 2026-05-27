@@ -1,0 +1,143 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# lakehouse-memory \u2014 Chat Agent\n",
+    "\n",
+    "A multi-turn agent using all three memory types:\n",
+    "- **episodic** \u2014 full chat history (LangChain BaseChatMessageHistory)\n",
+    "- **semantic** \u2014 durable facts about the user, retrieved each turn\n",
+    "- **working** \u2014 short-lived session state\n",
+    "\n",
+    "Run all cells to watch the agent recall a stated preference across turns."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%pip install --pre --quiet \"lakehouse-memory[langchain]>=0.1.0b3\"\n",
+    "dbutils.library.restartPython()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from lakehouse_memory import Memory\n",
+    "from databricks.sdk import WorkspaceClient\n",
+    "\n",
+    "dbutils.widgets.text(\"catalog\", \"{{.catalog}}\")\n",
+    "dbutils.widgets.text(\"schema_name\", \"{{.schema_name}}\")\n",
+    "dbutils.widgets.text(\"vector_search_endpoint\", \"{{.vector_search_endpoint}}\")\n",
+    "dbutils.widgets.text(\"warehouse_http_path\", \"{{.warehouse_http_path}}\")\n",
+    "dbutils.widgets.text(\"llm_endpoint\", \"{{.llm_endpoint}}\")\n",
+    "\n",
+    "ctx = dbutils.notebook.entry_point.getDbutils().notebook().getContext()\n",
+    "host = \"https://\" + spark.conf.get(\"spark.databricks.workspaceUrl\")\n",
+    "token = ctx.apiToken().get()\n",
+    "LLM = dbutils.widgets.get(\"llm_endpoint\")\n",
+    "\n",
+    "mem = Memory.from_databricks(\n",
+    "    catalog=dbutils.widgets.get(\"catalog\"),\n",
+    "    schema_name=dbutils.widgets.get(\"schema_name\"),\n",
+    "    workspace_url=host,\n",
+    "    access_token=token,\n",
+    "    http_path=dbutils.widgets.get(\"warehouse_http_path\"),\n",
+    "    vector_search_endpoint=dbutils.widgets.get(\"vector_search_endpoint\"),\n",
+    ").with_scope(user_id=\"demo_user\", session_id=\"chat_demo\")\n",
+    "\n",
+    "w = WorkspaceClient(host=host, token=token)\n",
+    "\n",
+    "def call_llm(messages: list[dict]) -> str:\n",
+    "    from databricks.sdk.service.serving import ChatMessage, ChatMessageRole\n",
+    "    resp = w.serving_endpoints.query(\n",
+    "        name=LLM,\n",
+    "        messages=[ChatMessage(role=ChatMessageRole(m[\"role\"]), content=m[\"content\"]) for m in messages],\n",
+    "    )\n",
+    "    return resp.choices[0].message.content"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from langchain_core.messages import HumanMessage, AIMessage\n",
+    "\n",
+    "chat = mem.as_langchain_chat_history(limit=20)\n",
+    "retriever = mem.as_langchain_retriever(k=3)\n",
+    "\n",
+    "SYSTEM = \"You are a helpful assistant. Use the known facts about the user when relevant. Be concise.\"\n",
+    "\n",
+    "def turn(user_text: str) -> str:\n",
+    "    facts = retriever.invoke(user_text)\n",
+    "    facts_block = \"\\n\".join(f\"- {d.page_content}\" for d in facts) or \"(none yet)\"\n",
+    "    history = [\n",
+    "        {\"role\": \"user\" if isinstance(m, HumanMessage) else \"assistant\", \"content\": m.content}\n",
+    "        for m in chat.messages\n",
+    "    ]\n",
+    "    messages = (\n",
+    "        [{\"role\": \"system\", \"content\": f\"{SYSTEM}\\n\\nKnown facts:\\n{facts_block}\"}]\n",
+    "        + history\n",
+    "        + [{\"role\": \"user\", \"content\": user_text}]\n",
+    "    )\n",
+    "    reply = call_llm(messages)\n",
+    "    chat.add_message(HumanMessage(content=user_text))\n",
+    "    chat.add_message(AIMessage(content=reply))\n",
+    "    return reply"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import time\n",
+    "\n",
+    "print(\"USER: I prefer concise answers, no fluff.\")\n",
+    "print(\"AGENT:\", turn(\"I prefer concise answers, no fluff.\"))\n",
+    "mem.semantic.upsert(fact=\"User prefers concise answers, no fluff.\", source=\"chat_demo\")\n",
+    "mem.semantic.trigger_sync()\n",
+    "time.sleep(10)\n",
+    "\n",
+    "print(\"\\nUSER: What's Unity Catalog in one sentence?\")\n",
+    "print(\"AGENT:\", turn(\"What's Unity Catalog in one sentence?\"))\n",
+    "\n",
+    "print(\"\\nUSER: What do you remember about how I like answers?\")\n",
+    "print(\"AGENT:\", turn(\"What do you remember about how I like answers?\"))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "---\n",
+    "Want this in production \u2014 with memory compaction, multi-tenant row-level security,\n",
+    "regression evals, and observability? Those are deliberately out of scope for this\n",
+    "open-source starter. See [burmaster.com](https://burmaster.com)."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "name": "python",
+   "version": "3.11.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

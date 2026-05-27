@@ -21,7 +21,7 @@
     },
     "llm_endpoint": {
       "type": "string",
-      "default": "databricks-meta-llama-3-1-70b-instruct",
+      "default": "databricks-meta-llama-3-3-70b-instruct",
       "description": "Model-serving endpoint the chat agent calls."
     },
     "warehouse_http_path": {
