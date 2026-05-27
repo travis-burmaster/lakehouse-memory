@@ -33,13 +33,37 @@ else:
 
 
 class LakehouseChatHistory(BaseChatMessageHistory):
-    """LangChain chat history backed by `Memory.episodic`.
+    """``BaseChatMessageHistory`` backed by the episodic memory store.
 
-    Each turn is one episodic event with event_type="chat_message" and
-    payload={"role": "human"|"ai", "content": ...}.
+    Bridges ``Memory.episodic`` to the LangChain
+    ``BaseChatMessageHistory`` interface so that ``LakehouseChatHistory`` can
+    be dropped directly into ``RunnableWithMessageHistory``.
+
+    Each chat turn is persisted as an episodic event with
+    ``event_type="chat_message"`` and
+    ``payload={"role": "human"|"ai", "content": ...}``.
+
+    Scope is inherited from the ``Memory`` instance supplied at construction
+    time.  To isolate history per session, call
+    ``memory.with_scope(session_id="new-session-id")`` before constructing
+    this object.
+
+    Note:
+        ``clear()`` is an intentional no-op.  Episodic memory is append-only
+        by design; deleting history is not supported.  To start a fresh
+        conversation, change the ``session_id`` via
+        ``memory.with_scope(session_id=...)``.
     """
 
     def __init__(self, memory: Memory, limit: int = 100) -> None:
+        """Initialise a ``LakehouseChatHistory``.
+
+        Args:
+            memory: A ``Memory`` instance (typically already scoped to a
+                session via ``memory.with_scope(session_id=...)``).
+            limit: Maximum number of most-recent messages to return when
+                ``messages`` is accessed.  Defaults to ``100``.
+        """
         self._memory = memory
         self._limit = limit
 
@@ -58,17 +82,36 @@ class LakehouseChatHistory(BaseChatMessageHistory):
         )
 
     def clear(self) -> None:
-        # Episodic is append-only by design — clear() does not delete history.
-        # For a fresh session, change session_id via memory.with_scope(session_id=...).
+        """No-op: episodic memory is append-only and does not support deletion.
+
+        For a fresh conversation, derive a new scoped instance via
+        ``memory.with_scope(session_id="<new-session-id>")`` and pass it to a
+        new ``LakehouseChatHistory``.
+        """
         return None
 
 
 class LakehouseSemanticRetriever(BaseRetriever):
-    """LangChain retriever backed by `Memory.semantic`.
+    """``BaseRetriever`` backed by the semantic memory store.
 
-    Returns Documents whose page_content is the fact text and metadata
-    carries source + scope columns (with `text` removed since it's the page
-    content).
+    Bridges ``Memory.semantic`` to the LangChain ``BaseRetriever`` interface
+    so that ``LakehouseSemanticRetriever`` can be dropped into any retrieval
+    chain or used with ``create_retrieval_chain``.
+
+    Each retrieved fact becomes a ``Document`` whose ``page_content`` is the
+    fact text; all other fact columns (source, scope fields, timestamps, etc.)
+    are placed in ``metadata`` (``text`` is excluded since it is promoted to
+    ``page_content``).
+
+    Scope is inherited from the ``Memory`` instance supplied at construction
+    time.
+
+    Attributes:
+        memory: The ``Memory`` instance whose semantic store is queried.
+            Scope filtering (user / session / agent) is applied automatically
+            from ``memory.scope``.
+        k: Number of semantically-similar facts to return per query.
+            Defaults to ``5``.
     """
 
     memory: Memory
