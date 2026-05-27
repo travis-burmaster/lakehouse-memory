@@ -103,7 +103,7 @@ def live_memory(
         teardown_client.execute(
             f"DROP SCHEMA IF EXISTS {test_catalog}.{ephemeral_schema_name} CASCADE"
         )
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"Teardown DROP SCHEMA failed: {e}", flush=True)
 
 

@@ -6,7 +6,7 @@
 
 Unity Catalog-native episodic, semantic, and working memory for AI agents on Databricks.
 
-> **Status:** Pre-release (`0.1.0b1`). Public from day one. The core library and LangChain adapters are workspace-validated; the DAB starter (M3) and docs site (M4) are not yet shipped. See [the spec](https://github.com/travis-burmaster/lakehouse-memory) for design intent.
+> **Status:** Pre-release (`0.1.0b3`). Public from day one. The core library, LangChain adapters, and DAB starter (M3) are workspace-validated; the docs site (M4) is not yet shipped. See [the spec](https://github.com/travis-burmaster/lakehouse-memory) for design intent.
 
 ## The pitch
 
@@ -22,7 +22,25 @@ pip install --pre lakehouse-memory
 
 The `--pre` flag is required while the package is in pre-release. Once `0.1.0` ships (alongside the M3 DAB starter and M4 docs), `pip install lakehouse-memory` will work without the flag.
 
-## Quickstart
+## Quickstart with the DAB starter (recommended)
+
+Bootstrap the whole reference architecture — UC tables, Vector Search indexes,
+and a working chat agent — in your Databricks workspace:
+
+```bash
+databricks bundle init https://github.com/travis-burmaster/lakehouse-memory \
+  --template-dir templates/lakehouse-memory-bundle
+cd <project-name>
+databricks bundle deploy
+databricks bundle run setup_job
+```
+
+You'll be prompted for your catalog, schema, Vector Search endpoint, SQL
+warehouse HTTP path, and LLM serving endpoint. After `setup_job` finishes,
+open `notebooks/02_chat_agent.ipynb` and run all cells — a memory-backed
+agent in under 10 minutes.
+
+## Manual setup (advanced)
 
 ```python
 from lakehouse_memory import Memory, MemoryConfig, Scope
