@@ -1,0 +1,47 @@
+site_name: lakehouse-memory
+site_description: Unity Catalog-native memory for AI agents on Databricks
+site_url: https://travis-burmaster.github.io/lakehouse-memory/
+repo_url: https://github.com/travis-burmaster/lakehouse-memory
+repo_name: travis-burmaster/lakehouse-memory
+
+docs_dir: docs
+
+exclude_docs: |
+  superpowers/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: black
+      accent: deep orange
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: false
+            show_root_heading: true
+            heading_level: 2
+            docstring_style: google
+
+nav:
+  - Home: index.md
+  - Concepts: concepts.md
+  - Quickstart: quickstart.md
+  - API Reference: api.md
+  - Production Gaps: production-gaps.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - toc:
+      permalink: true
