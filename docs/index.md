@@ -25,16 +25,13 @@ Catalog tables and Databricks Vector Search.
 ## Install
 
 ```bash
-pip install --pre lakehouse-memory
+pip install lakehouse-memory
 ```
-
-> The `--pre` flag is required while the package is in pre-release. Once `0.1.0`
-> ships, `pip install lakehouse-memory` will work without the flag.
 
 For LangChain integration:
 
 ```bash
-pip install --pre "lakehouse-memory[langchain]"
+pip install "lakehouse-memory[langchain]"
 ```
 
 ---

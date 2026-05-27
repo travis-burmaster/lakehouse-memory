@@ -1,8 +1,9 @@
 # Production Gaps
 
-`lakehouse-memory` is a pre-release OSS library. The core primitives work and
-are workspace-validated, but several concerns are deliberately out of scope for
-the open-source release.
+`lakehouse-memory` proves the pattern: the core primitives work and are
+workspace-validated. But several concerns are deliberately out of scope for the
+open-source release — here's an honest map of what a real production deployment
+needs beyond the OSS core, and where to get help.
 
 ---
 
